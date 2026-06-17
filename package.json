@@ -1,6 +1,6 @@
 {
   "name": "mjt-panel-web",
-  "version": "3.0.0-SNAPSHOT+1",
+  "version": "0.0.2",
   "private": false,
   "description": "Static frontend panel for Mini Java Terminal",
   "license": "MIT",

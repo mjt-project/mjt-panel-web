@@ -37,6 +37,7 @@
         <nav class="nav">
           <button class="nav-item active" data-page="dashboard">Dashboard</button>
           <button class="nav-item" data-page="servers">Servers</button>
+          <button class="nav-item" data-page="installer">Installer</button>
           <button class="nav-item" data-page="console">Console</button>
           <button class="nav-item" data-page="files">Files</button>
           <button class="nav-item" data-page="backups">Backups</button>
@@ -116,6 +117,43 @@
               <button id="reloadProfilesBtn" class="btn btn-ghost">Reload</button>
             </div>
             <div id="serversTable" class="table"></div>
+          </div>
+        </section>
+
+        
+        <section id="installerPage" class="page">
+          <div class="card">
+            <div class="card-header">
+              <h3>Minecraft Installer</h3>
+              <span class="badge">Velocity / Paper / Purpur</span>
+            </div>
+            <div class="install-grid">
+              <label>Software
+                <select id="installSoftware" class="select">
+                  <option value="velocity">Velocity</option>
+                  <option value="paper">Paper</option>
+                  <option value="purpur">Purpur</option>
+                </select>
+              </label>
+              <label>Profile name
+                <input id="installProfile" class="input" value="velocity" placeholder="velocity, smp, lobby..." />
+              </label>
+              <label>Minecraft version
+                <input id="installVersion" class="input" value="latest" placeholder="latest or 1.21.10" />
+              </label>
+              <label>Build
+                <input id="installBuild" class="input" value="latest" placeholder="latest or build number" />
+              </label>
+            </div>
+            <div class="check-row">
+              <label><input id="installAcceptEula" type="checkbox" /> Accept Minecraft EULA for Paper/Purpur</label>
+              <label><input id="installForce" type="checkbox" /> Force replace jar</label>
+            </div>
+            <div class="button-row horizontal">
+              <button id="installMinecraftBtn" class="btn btn-primary">Install server</button>
+              <button id="installerProvidersBtn" class="btn btn-ghost">Check providers</button>
+            </div>
+            <pre id="installerOutput" class="console-output small-output">Ready.</pre>
           </div>
         </section>
 

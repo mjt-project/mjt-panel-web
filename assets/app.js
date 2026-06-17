@@ -54,6 +54,13 @@ function demoApi(path, options = {}) {
       remote: "demo"
     });
   }
+  if (path.includes("/minecraft/install/providers")) {
+    return Promise.resolve({ ok: true, providers: [
+      { id: "velocity", name: "Velocity", type: "proxy" },
+      { id: "paper", name: "Paper", type: "server" },
+      { id: "purpur", name: "Purpur", type: "server" }
+    ] });
+  }
   if (path.includes("/minecraft/profiles") || path.includes("/minecraft/status")) {
     return Promise.resolve({ profiles: demoProfiles });
   }
@@ -67,6 +74,7 @@ function demoApi(path, options = {}) {
       ]
     });
   }
+  if (path.includes("/minecraft/install")) return Promise.resolve({ ok: true, software: "demo", profile: "demo", version: "latest", build: "latest", jar: "/demo/minecraft.jar", workdir: "/demo" });
   return Promise.resolve({ ok: true });
 }
 
@@ -265,11 +273,59 @@ function switchPage(page) {
     files: "Browse and edit files inside profile workdirs.",
     backups: "Create and manage backups.",
     players: "Player tools and moderation shortcuts.",
+    installer: "Download and install Velocity, Paper or Purpur profiles.",
     network: "Gateway, tunnel, ports and public access.",
     settings: "Panel and Minecraft profile settings.",
     system: "Core version, health checks and installers."
   };
   $("pageSubtitle").textContent = subtitles[page] || "";
+}
+
+
+async function checkInstallerProviders() {
+  try {
+    const result = await api("/minecraft/install/providers");
+    const providers = result.providers || [];
+    $("installerOutput").textContent = JSON.stringify(providers, null, 2);
+    showToast("Installer providers loaded");
+  } catch (error) {
+    $("installerOutput").textContent = `Provider check failed: ${error.message}`;
+  }
+}
+
+async function installMinecraftServer() {
+  const software = $("installSoftware").value;
+  const profile = $("installProfile").value.trim();
+  const version = $("installVersion").value.trim() || "latest";
+  const build = $("installBuild").value.trim() || "latest";
+  const acceptEula = $("installAcceptEula").checked;
+  const force = $("installForce").checked;
+
+  if (!software || !profile) {
+    showToast("Choose software and profile first.");
+    return;
+  }
+
+  $("installerOutput").textContent = `Installing ${software} into profile ${profile}...`;
+  try {
+    const result = await api("/minecraft/install", {
+      method: "POST",
+      body: JSON.stringify({ software, profile, version, build, acceptEula, force })
+    });
+    $("installerOutput").textContent = JSON.stringify(result, null, 2);
+    showToast(`Installed ${software} as ${profile}`);
+    await refreshAll();
+  } catch (error) {
+    $("installerOutput").textContent = `Install failed: ${error.message}`;
+    showToast(`Install failed: ${error.message}`);
+  }
+}
+
+function syncInstallerProfileDefault() {
+  const software = $("installSoftware").value;
+  if (software === "velocity") $("installProfile").value = "velocity";
+  if (software === "paper") $("installProfile").value = "smp";
+  if (software === "purpur") $("installProfile").value = "lobby";
 }
 
 function bindEvents() {
@@ -288,6 +344,9 @@ function bindEvents() {
   $("killBtn").onclick = () => action("kill");
 
   $("sendCommandBtn").onclick = sendCommand;
+  $("installerProvidersBtn").onclick = checkInstallerProviders;
+  $("installMinecraftBtn").onclick = installMinecraftServer;
+  $("installSoftware").onchange = syncInstallerProfileDefault;
   $("commandInput").addEventListener("keydown", (event) => {
     if (event.key === "Enter") sendCommand();
   });
