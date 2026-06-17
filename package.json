@@ -1,0 +1,10 @@
+{
+  "name": "mjt-panel-web",
+  "version": "3.0.0-SNAPSHOT+1",
+  "private": false,
+  "description": "Static frontend panel for Mini Java Terminal",
+  "license": "MIT",
+  "scripts": {
+    "serve": "python3 -m http.server 9090"
+  }
+}

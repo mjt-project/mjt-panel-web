@@ -1,0 +1,9 @@
+{
+  "name": "MJT Panel Web",
+  "version": "3.0.0-SNAPSHOT+1",
+  "type": "static-frontend",
+  "entry": "index.html",
+  "minimumCore": "3.0.0-SNAPSHOT+6",
+  "apiBase": "/api",
+  "license": "MIT"
+}
