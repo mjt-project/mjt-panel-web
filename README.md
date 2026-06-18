@@ -1,84 +1,87 @@
 # MJT Panel Web
 
-**Version:** `0.0.12`  
-**Type:** Static frontend — no npm install or build step required.
+**Version:** `0.0.14`  
+**Stack:** React + TypeScript + Vite + Mantine  
+**Runtime:** Static files served by MJT Java Core
 
-This version resets the visual direction of MJT Panel into a calmer, light-first game-server admin interface. It takes broad UX inspiration from modern server panels: quiet navigation, a clear content hierarchy, compact status indicators, and one primary action per context. It does **not** include or copy Calagopus source code or assets.
+MJT Panel Web is the frontend for Mini Java Terminal. It is developed as a proper React application, but the MJT host only serves the compiled `dist/` files. Node.js and Vite are not required on the runtime host.
 
-## Run locally
+## Panel areas
+
+| Area | UI status | Core API status |
+|---|---:|---:|
+| Login | Ready | Ready |
+| Dashboard | Ready | Ready |
+| Servers | Ready | Ready |
+| Installer | Ready | Ready |
+| Console | Ready | Ready |
+| Files | Ready | Basic API required |
+| Backups | Ready | Future API required |
+| Players | Ready | Future API required |
+| Network | Ready | Future API required |
+| Settings | Ready | Browser preferences now |
+| System | Ready | Future API optional |
+
+## Development
 
 ```bash
-python3 -m http.server 5173
+npm ci
+npm run dev
 ```
 
-Open `http://127.0.0.1:5173`.
+Open the Vite URL. Use **Demo Mode** for UI work with mock data.
 
-For local UI development, sign in with:
+To build the static release:
+
+```bash
+npm run check
+npm run build
+```
+
+The output is created in:
 
 ```text
-Token: dev
+dist/
 ```
 
-That enables Mock Mode. No MJT Java core is needed.
+## Runtime installation
 
-## Design choices
+MJT Java Core should download the built release archive and extract it to:
 
-- **Be Vietnam Pro** via Google Fonts CDN for UI text.
-- **JetBrains Mono** for console and code surfaces.
-- Vanilla CSS with internal design tokens: no Tailwind.
-- Anime.js is optional and only improves subtle transitions.
-- Start is the sole positive primary server action.
-- Stop is a neutral secondary action.
-- Kill is placed in a quiet “More” menu to reduce accidental destructive clicks.
-- File Manager does not call a missing API automatically; it waits for an explicit user action.
+```text
+/home/container/MJT/panel/static/
+```
 
-## Project structure
+The directory must contain `index.html` at its root.
+
+## UI source layout
 
 ```text
 src/
-├── app/          # application controller and shared state
-├── features/     # page-level UI and interaction modules
+├── api/           # MJT API client, mock API, types
+├── app/           # app shell and page routing
+├── features/      # one folder per panel area
 │   ├── auth/
 │   ├── dashboard/
 │   ├── servers/
 │   ├── installer/
 │   ├── console/
-│   └── files/
-├── services/     # API, mock API, browser storage
-└── ui/           # toast and motion helpers
-styles/
-├── tokens.css
-└── app.css
+│   ├── files/
+│   ├── backups/
+│   ├── players/
+│   ├── network/
+│   ├── settings/
+│   └── system/
+├── shared/        # reusable UI components
+└── theme/         # Mantine theme and global CSS
 ```
 
-## Expected API
+## Security model
 
-```text
-GET  /api/auth/check
-GET  /api/status
-GET  /api/minecraft/status
-GET  /api/minecraft/logs?profile=<profile>
-POST /api/minecraft/start
-POST /api/minecraft/stop
-POST /api/minecraft/kill
-POST /api/minecraft/send
-POST /api/minecraft/install
-
-GET  /api/files/list?profile=<profile>&path=<path>
-GET  /api/files/read?profile=<profile>&path=<path>
-POST /api/files/write
-POST /api/files/create
-POST /api/files/mkdir
-POST /api/files/delete
-```
-
-## Install into MJT
-
-Extract the release contents into:
-
-```text
-/home/container/MJT/panel/static
-```
+- Panel uses the MJT token with `X-MJT-Token` and `Authorization: Bearer` headers.
+- File operations must stay inside the selected profile workdir.
+- Dangerous server, file and backup actions need confirmation.
+- Public exposure should be explicit and separate from local panel defaults.
 
 ## License
 

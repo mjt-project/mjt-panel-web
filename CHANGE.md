@@ -1,22 +1,57 @@
 # CHANGE.md
 
-## 0.0.12 — Calmer light UI reset
+## 0.0.14 — Complete Panel UI Setup
 
-### Changed
+This release completes the **frontend UI structure** for all planned panel areas.
 
-- Rebuilt visual system around a neutral light shell, quiet cards, compact navigation and clearer hierarchy.
-- Replaced generic/rainbow action buttons with a deliberate action model:
-  - **Start** = blue primary
-  - **Stop** = neutral secondary
-  - **Restart** = outline action
-  - **Kill** = tucked into More menu
-- Added Be Vietnam Pro UI font and JetBrains Mono console font through CDN.
-- Kept Anime.js only as an optional enhancement.
-- Improved installer layout and field spacing.
-- Added explicit loading, empty, error and unavailable states.
-- File Manager now avoids automatic calls to unimplemented backend APIs.
+### Fully set up in the UI
 
-### Fixed
+- Login and Demo Mode
+- Dashboard
+- Server profiles
+- Velocity / Paper / Purpur installer
+- Console
+- File Manager
+  - browse folders
+  - open and edit files
+  - save files
+  - create file/folder
+  - rename
+  - delete confirmation
+- Backups
+  - list
+  - create
+  - restore confirmation
+  - delete confirmation
+- Players
+  - online/offline list
+  - kick / ban / OP / whitelist action UI
+- Network
+  - panel access, tunnel, gateway and port overview
+- Settings
+  - API base and browser-side panel preferences
+- System
+  - MJT Core, Java, memory, disk and frontend health overview
 
-- Added top-level bootstrap error fallback so a JavaScript issue cannot silently produce a blank white page.
-- Added user-visible API status and retry entry points.
+### Architecture
+
+- React + TypeScript + Vite + Mantine
+- Static build only at runtime
+- Feature-first folders under `src/features/`
+- Mock API covers every current UI page in Demo Mode
+- Java Core APIs are connected when available; missing future endpoints only affect their own pages
+
+### Notes
+
+This is a **complete UI setup** release. Some pages are ready for real MJT API bindings that may be implemented in Java Core later:
+
+```text
+/api/backups/*
+/api/players/*
+/api/network/status
+/api/system/status
+/api/files/create
+/api/files/mkdir
+/api/files/rename
+/api/files/delete
+```

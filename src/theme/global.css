@@ -1,0 +1,28 @@
+:root {
+  color: #1f2937;
+  background: #f7f8fc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; }
+body { margin: 0; background: #f7f8fc; }
+button, input, textarea, select { font: inherit; }
+
+.mjt-console {
+  min-height: 380px;
+  max-height: 60vh;
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  border-radius: 12px;
+  color: #dbeafe;
+  background: #111827;
+  font-family: JetBrains Mono, ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.file-row:hover { background: #f6f7fb; }

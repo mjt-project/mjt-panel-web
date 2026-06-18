@@ -1,10 +1,23 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.0.12",
-  "type": "static-frontend",
+  "version": "0.0.14",
+  "type": "react-vite-static-frontend",
   "entry": "index.html",
+  "runtime": "static-files-only",
+  "minimumCore": "3.0.0-SNAPSHOT+8",
   "apiBase": "/api",
-  "minimumCore": "3.0.0-SNAPSHOT+7",
-  "designSystem": "light-first / Be Vietnam Pro / vanilla CSS / optional Anime.js",
-  "license": "MIT"
+  "license": "MIT",
+  "focus": "Complete frontend UI setup",
+  "pages": [
+    "dashboard",
+    "servers",
+    "installer",
+    "console",
+    "files",
+    "backups",
+    "players",
+    "network",
+    "settings",
+    "system"
+  ]
 }
