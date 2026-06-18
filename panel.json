@@ -1,6 +1,6 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.1.0",
+  "version": "0.0.11",
   "type": "static-frontend",
   "entry": "index.html",
   "module": true,
@@ -10,5 +10,8 @@
   "minimumCore": "3.0.0-SNAPSHOT+6",
   "recommendedCore": "3.0.0-SNAPSHOT+8",
   "apiBase": "/api",
-  "license": "MIT"
+  "license": "MIT",
+  "focus": "UX moodboard and button system",
+  "theme": "light-first",
+  "framework": "vanilla-css + animejs-cdn"
 }

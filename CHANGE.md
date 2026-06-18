@@ -1,17 +1,28 @@
 # CHANGE.md
 
-## 0.1.0 - Vanilla CSS + Anime.js
-
-### Changed
-
-- Removed Tailwind CSS CDN.
-- Added vanilla CSS design system.
-- Added Anime.js CDN for optional transitions.
-- Fixed blank-screen risk by guarding animations.
-- Kept modular feature-folder structure.
-- Installer now sends both `software` and `provider` fields.
+## 0.0.11 - UX Moodboard + Button Polish
 
 ### Added
 
-- `src/ui/animations.js`
-- Light-first UI polish without framework dependency.
+- Light-first button moodboard.
+- Semantic action button tokens:
+  - Start: calm emerald
+  - Stop: soft amber
+  - Kill: soft rose
+  - Console: soft indigo
+  - Primary: hosting-panel blue
+- Better focus-visible states.
+- Better hover/active states.
+- Better selected server card state.
+- Moodboard helper CSS classes for future pages.
+
+### Changed
+
+- Versioning returned to `0.0.x` as requested.
+- Replaced harsh action button colors with low-glare admin panel colors.
+- Reduced high contrast and heavy shadows.
+- Kept vanilla CSS + Anime.js CDN, no Tailwind and no build step.
+
+### Notes
+
+This release is frontend-only. Upload it to `mjt-panel-web` and tag it as `0.0.11`.

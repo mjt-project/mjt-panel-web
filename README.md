@@ -1,9 +1,37 @@
 # MJT Panel Web
 
-Version: `0.0.10`  
-Focus: Vanilla CSS + Anime.js, no Tailwind.
+**Version:** `0.0.11`  
+**Focus:** UX moodboard and button system
 
-## Run locally
+This is the static frontend for Mini Java Terminal.
+
+## Design direction
+
+MJT Panel is now **light-first**. Dark mode will be added later after the UX is stable.
+
+The UI moodboard is:
+
+- clean hosting panel
+- calm admin dashboard
+- low-glare colors
+- soft borders
+- clear action buttons
+- no Tailwind
+- no build step
+- optional Anime.js CDN for light animation
+
+## Button moodboard
+
+| Action | Mood | CSS class |
+|---|---|---|
+| Start | calm emerald | `btn success` |
+| Stop | soft amber | `btn warn` |
+| Kill | soft rose | `btn danger` |
+| Console | soft indigo | `btn console` |
+| Main action | hosting blue | `btn primary` |
+| Secondary | neutral slate | `btn soft` |
+
+## Local development
 
 ```bash
 python3 -m http.server 5173
@@ -15,42 +43,24 @@ Open:
 http://127.0.0.1:5173
 ```
 
-Local dev login:
+Use local dev token:
 
 ```text
-Token: dev
+dev
 ```
 
-## Notes
+## Install in MJT
 
-- No Tailwind CSS.
-- No build step.
-- Anime.js is loaded from CDN and used only for small UI transitions.
-- If Anime.js fails to load, the panel still works.
-- `index.html` is small and all logic is split into feature folders.
+Upload this release to GitHub and set:
 
-## Folder layout
-
-```text
-src/
-  app/
-  services/
-  features/
-    auth/
-    layout/
-    dashboard/
-    servers/
-    installer/
-    console/
-    files/
-    placeholder/
-  ui/
-  utils/
-styles/app.css
+```properties
+app.panel.frontend.url=https://github.com/mjt-project/mjt-panel-web/archive/refs/tags/0.0.11.zip
+app.panel.frontend.tag=0.0.11
 ```
 
-## Release URL example
+Then run:
 
 ```text
-https://github.com/mjt-project/mjt-panel-web/archive/refs/tags/0.1.0.zip
+.mjt panel update
+.mjt panel restart
 ```
