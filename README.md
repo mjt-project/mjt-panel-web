@@ -1,8 +1,11 @@
-# MJT Panel Web 0.0.5
+# MJT Panel Web
 
-Tailwind CDN + modular frontend for Mini Java Terminal.
+**Version:** `0.0.6`  
+**Focus:** Light UI first + modular panel development.
 
-## Local dev
+This is a frontend-only static panel for Mini Java Terminal. It uses Tailwind CSS through CDN, so no npm build step is required.
+
+## Run locally
 
 ```bash
 python3 -m http.server 5173
@@ -14,32 +17,33 @@ Open:
 http://127.0.0.1:5173
 ```
 
-Use token:
+Local dev login:
 
 ```text
-dev
+Token: dev
 ```
 
-The token `dev` enables mock API mode on localhost.
-
-## Folder layout
+## Structure
 
 ```text
-src/
-  app/                 App state and router
-  services/            API client, mock API, storage
-  features/auth/       Login and local dev auth
-  features/layout/     Shell layout
-  features/dashboard/  Dashboard view
-  features/servers/    Servers view
-  features/installer/  Installer view
-  features/console/    Console view
-  features/files/      File manager view/controller
-  ui/                  Shared UI components
-  utils/               Helpers
+index.html
+styles/theme.css
+src/main.js
+src/app/
+src/services/
+src/features/auth/
+src/features/layout/
+src/features/dashboard/
+src/features/servers/
+src/features/installer/
+src/features/console/
+src/features/files/
+src/features/placeholder/
+src/ui/
+src/utils/
 ```
 
-## File manager expected APIs
+## File Manager API expected later
 
 ```text
 GET  /api/files/list?profile=<profile>&path=<path>
@@ -52,8 +56,6 @@ POST /api/files/rename
 GET  /api/files/download?profile=<profile>&path=<path>
 ```
 
-All file APIs should be jailed by the MJT Java core to the selected Minecraft profile workdir.
+## License
 
-## Notes
-
-This version uses Tailwind Play CDN for zero-build frontend development.
+MIT

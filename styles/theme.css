@@ -1,0 +1,12 @@
+html { scroll-behavior: smooth; }
+body { min-height: 100vh; }
+button, input, select, textarea { font: inherit; }
+button { transition: transform .12s ease, box-shadow .12s ease, background .12s ease; }
+button:hover { transform: translateY(-1px); }
+.mjt-card { @apply rounded-3xl border border-mjt-border bg-white shadow-soft; }
+.mjt-btn { @apply inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-bold transition; }
+.mjt-input { @apply w-full rounded-2xl border border-mjt-border bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100; }
+.mjt-muted { @apply text-sm text-mjt-muted; }
+.mjt-nav { @apply flex w-full items-center rounded-2xl px-4 py-3 text-left text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-700; }
+.mjt-nav.active { @apply bg-blue-600 text-white shadow-md shadow-blue-100; }
+.codebox { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; }

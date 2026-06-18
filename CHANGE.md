@@ -1,21 +1,18 @@
 # CHANGE.md
 
-## 0.0.5 - Tailwind + File Manager Setup
-
-### Added
-
-- Tailwind Play CDN in `index.html`
-- Modular feature folders retained
-- File Manager page shell
-- File list, breadcrumbs, editor panel, delete/download actions
-- File manager mock API for local dev
-- Expected file API contract documented
+## 0.0.6 - Light UI First
 
 ### Changed
 
-- UI classes migrated to Tailwind utilities
-- `index.html` remains a boot file only
+- Converted panel to a light-first UI.
+- Reduced dark high-contrast borders.
+- Reworked sidebar, dashboard, cards and file manager for readability.
+- Kept Tailwind CDN only, no required frontend build step.
+- Kept modular feature folder structure.
 
-### Local dev
+### Added
 
-Use token `dev` on localhost.
+- Light file manager layout.
+- File empty/error states.
+- Better selected profile context.
+- Cleaner dev login with token `dev`.

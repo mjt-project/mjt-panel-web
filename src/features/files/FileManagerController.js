@@ -1,118 +1,88 @@
 import { state } from '../../app/state.js';
 import { api } from '../../services/apiClient.js';
 import { toast } from '../../ui/toast.js';
-import { renderBreadcrumb, renderFileRows } from './FileManagerView.js';
 
-export async function loadFiles(path = state.filePath || '/') {
-  if (!state.selectedProfile) return toast('Select a profile first.', true);
-  state.filePath = normalizePath(path);
+export async function loadFiles() {
+  if (!state.selectedProfile) return { entries: [], error: 'Select a profile first.' };
   try {
-    const result = await api(`/files/list?profile=${encodeURIComponent(state.selectedProfile)}&path=${encodeURIComponent(state.filePath)}`);
-    state.files = result.files || [];
-    renderBreadcrumb();
-    renderFileRows();
-    bindFileRows();
+    const result = await api(`/files/list?profile=${encodeURIComponent(state.selectedProfile)}&path=${encodeURIComponent(state.filePath || '/')}`);
+    return { entries: result.entries || [], error: '' };
   } catch (error) {
-    toast(`Load files failed: ${error.message}`, true);
+    return { entries: [], error: `Load files failed: ${error.message}` };
   }
 }
 
-export function bindFileManagerEvents() {
-  const refresh = document.getElementById('filesRefreshBtn');
-  if (!refresh) return;
-  refresh.onclick = () => loadFiles(state.filePath);
-  document.getElementById('filesUpBtn').onclick = () => loadFiles(parentPath(state.filePath));
-  document.getElementById('saveFileBtn').onclick = saveCurrentFile;
-  document.getElementById('newFileBtn').onclick = createFile;
-  document.getElementById('newFolderBtn').onclick = createFolder;
-  loadFiles(state.filePath || '/');
-}
-
-function bindFileRows() {
-  document.querySelectorAll('[data-file-open]').forEach((button) => {
-    button.onclick = () => {
-      const path = button.dataset.fileOpen;
-      const type = button.dataset.fileType;
-      if (type === 'dir') loadFiles(path);
-      else readFile(path);
+export function bindFileEvents({ renderPanel }) {
+  document.querySelectorAll('[data-file-action]').forEach((button) => {
+    button.onclick = async () => {
+      const action = button.dataset.fileAction;
+      if (action === 'up') goUp();
+      if (action === 'refresh') await renderPanel();
+      if (action === 'new-file') await createFile();
+      if (action === 'new-folder') await createFolder();
     };
   });
-  document.querySelectorAll('[data-breadcrumb]').forEach((button) => button.onclick = () => loadFiles(button.dataset.breadcrumb));
-  document.querySelectorAll('[data-file-delete]').forEach((button) => button.onclick = () => deletePath(button.dataset.fileDelete));
-  document.querySelectorAll('[data-file-download]').forEach((button) => button.onclick = () => downloadPath(button.dataset.fileDownload));
+
+  document.querySelectorAll('[data-file-open]').forEach((button) => {
+    button.onclick = async () => {
+      const name = button.dataset.fileOpen;
+      const type = button.dataset.fileType;
+      if (type === 'dir') {
+        state.filePath = joinPath(state.filePath, name);
+        await renderPanel();
+      } else {
+        await readFile(joinPath(state.filePath, name));
+        await renderPanel();
+      }
+    };
+  });
+
+  document.querySelectorAll('[data-file-delete]').forEach((button) => {
+    button.onclick = async () => {
+      await deletePath(joinPath(state.filePath, button.dataset.fileDelete));
+      await renderPanel();
+    };
+  });
+
+  const saveBtn = document.getElementById('saveFileBtn');
+  if (saveBtn) saveBtn.onclick = saveFile;
 }
 
+function joinPath(base, name) {
+  const clean = (base || '/').replace(/\/$/, '');
+  return `${clean}/${name}`.replace(/^\/\//, '/');
+}
+function goUp() {
+  const parts = (state.filePath || '/').split('/').filter(Boolean);
+  parts.pop();
+  state.filePath = '/' + parts.join('/');
+  if (state.filePath !== '/') state.filePath = state.filePath.replace(/\/$/, '');
+}
 async function readFile(path) {
-  try {
-    const result = await api(`/files/read?profile=${encodeURIComponent(state.selectedProfile)}&path=${encodeURIComponent(path)}`);
-    state.selectedFile = path;
-    state.fileContent = result.content || '';
-    document.getElementById('editorFileName').textContent = path;
-    document.getElementById('fileEditor').value = state.fileContent;
-  } catch (error) {
-    toast(`Read failed: ${error.message}`, true);
-  }
+  const result = await api(`/files/read?profile=${encodeURIComponent(state.selectedProfile)}&path=${encodeURIComponent(path)}`);
+  state.selectedFile = path;
+  state.fileContent = result.content || '';
 }
-
-async function saveCurrentFile() {
+async function saveFile() {
   if (!state.selectedFile) return toast('Select a file first.', true);
-  try {
-    await api('/files/write', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path: state.selectedFile, content: document.getElementById('fileEditor').value }) });
-    toast(`Saved ${state.selectedFile}`);
-  } catch (error) {
-    toast(`Save failed: ${error.message}`, true);
-  }
+  const content = document.getElementById('fileEditor').value;
+  await api('/files/write', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path: state.selectedFile, content }) });
+  toast('File saved.');
 }
-
 async function createFile() {
   const name = prompt('New file name');
   if (!name) return;
-  const path = joinPath(state.filePath, name);
-  try {
-    await api('/files/create', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path, type: 'file' }) });
-    toast(`Created ${name}`);
-    await loadFiles(state.filePath);
-  } catch (error) { toast(`Create failed: ${error.message}`, true); }
+  await api('/files/create', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path: joinPath(state.filePath, name), type: 'file' }) });
+  toast('File created.');
 }
-
 async function createFolder() {
   const name = prompt('New folder name');
   if (!name) return;
-  const path = joinPath(state.filePath, name);
-  try {
-    await api('/files/mkdir', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path }) });
-    toast(`Created folder ${name}`);
-    await loadFiles(state.filePath);
-  } catch (error) { toast(`Mkdir failed: ${error.message}`, true); }
+  await api('/files/mkdir', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path: joinPath(state.filePath, name) }) });
+  toast('Folder created.');
 }
-
 async function deletePath(path) {
   if (!confirm(`Delete ${path}?`)) return;
-  try {
-    await api('/files/delete', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path }) });
-    toast(`Deleted ${path}`);
-    await loadFiles(state.filePath);
-  } catch (error) { toast(`Delete failed: ${error.message}`, true); }
-}
-
-function downloadPath(path) {
-  if (state.demo) return toast('Download disabled in demo mode.');
-  location.href = `${state.apiBase}/files/download?profile=${encodeURIComponent(state.selectedProfile)}&path=${encodeURIComponent(path)}&token=${encodeURIComponent(state.token)}`;
-}
-
-function normalizePath(path) {
-  if (!path || path === '.') return '/';
-  let p = path.replaceAll('\\\\', '/');
-  if (!p.startsWith('/')) p = '/' + p;
-  return p.replace(/\/+/g, '/');
-}
-function parentPath(path) {
-  const clean = normalizePath(path);
-  if (clean === '/') return '/';
-  const parts = clean.split('/').filter(Boolean);
-  parts.pop();
-  return '/' + parts.join('/');
-}
-function joinPath(base, name) {
-  return normalizePath(`${base}/${name}`);
+  await api('/files/delete', { method: 'POST', body: JSON.stringify({ profile: state.selectedProfile, path }) });
+  toast('Deleted.');
 }

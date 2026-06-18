@@ -3,3 +3,4 @@ export function escapeHtml(value) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
   })[char]);
 }
+export function escapeAttr(value) { return escapeHtml(value); }
