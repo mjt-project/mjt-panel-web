@@ -1,7 +1,1 @@
-export function toast(message, danger = false) {
-  const el = document.getElementById("toast");
-  el.textContent = message;
-  el.style.borderLeftColor = danger ? "#ef4444" : "#2563eb";
-  el.classList.remove("hidden");
-  setTimeout(() => el.classList.add("hidden"), 3000);
-}
+export function toast(msg,danger=false){const el=document.getElementById('toast'); if(!el)return; el.textContent=msg; el.style.borderLeftColor=danger?'var(--danger)':'var(--primary)'; el.classList.remove('hidden'); setTimeout(()=>el.classList.add('hidden'),2800);}

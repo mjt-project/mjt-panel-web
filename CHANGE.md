@@ -1,12 +1,17 @@
 # CHANGE.md
 
-## 0.0.9 - Blank Screen Fix
+## 0.1.0 - Vanilla CSS + Anime.js
 
-### Fixed
+### Changed
 
-- Fixed frontend blank white screen caused by an invalid newline string in `src/app/App.js`.
-- Corrected console log rendering to use `join("\n")`.
+- Removed Tailwind CSS CDN.
+- Added vanilla CSS design system.
+- Added Anime.js CDN for optional transitions.
+- Fixed blank-screen risk by guarding animations.
+- Kept modular feature-folder structure.
+- Installer now sends both `software` and `provider` fields.
 
-### Notes
+### Added
 
-This is a frontend-only fix. Upload this panel release and update `app.properties` to tag `0.0.9`.
+- `src/ui/animations.js`
+- Light-first UI polish without framework dependency.

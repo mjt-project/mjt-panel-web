@@ -1,2 +1,2 @@
-export function isLocalDev() { return location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.protocol === "file:"; }
-export function isDevToken(token) { return isLocalDev() && token === "dev"; }
+export function isLocalDev(){return ['localhost','127.0.0.1'].includes(location.hostname)||location.protocol==='file:';}
+export function isDevToken(t){return isLocalDev()&&t==='dev';}

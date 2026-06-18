@@ -1,10 +1,14 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "type": "static-frontend",
   "entry": "index.html",
+  "module": true,
+  "css": "vanilla",
+  "animation": "anime.js",
+  "tailwind": false,
   "minimumCore": "3.0.0-SNAPSHOT+6",
   "recommendedCore": "3.0.0-SNAPSHOT+8",
-  "license": "MIT",
-  "ui": "light-polished"
+  "apiBase": "/api",
+  "license": "MIT"
 }

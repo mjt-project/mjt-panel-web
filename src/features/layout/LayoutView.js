@@ -1,22 +1,5 @@
-import { pages, pageMeta } from "../../app/router.js";
-import { state } from "../../app/state.js";
-
-export function LayoutView(contentHtml) {
-  const [title, subtitle] = pageMeta[state.currentPage] || pageMeta.dashboard;
-  return `<section class="app-shell">
-    <aside class="sidebar">
-      <div class="brand"><div class="logo">M</div><div><strong class="text-slate-950">MJT Panel</strong><div class="text-xs text-slate-500 font-semibold">web 0.0.8</div></div></div>
-      <nav class="nav">${pages.map((p) => `<button class="nav-link ${p === state.currentPage ? "active" : ""}" data-page="${p}">${label(p)}</button>`).join("")}</nav>
-      <div class="sidebar-footer"><div class="api-pill"><span class="dot"></span>${state.demo ? "Demo mode" : "API mode"}</div><button id="logoutBtn" class="btn btn-danger w-full">Logout</button></div>
-    </aside>
-    <main class="main">
-      <header class="topbar"><div><h1 class="text-3xl font-black tracking-tight text-slate-950">${title}</h1><p class="text-sm text-slate-500 mt-1">${subtitle}</p></div><div class="toolbar"><select id="profileSelect" class="select">${profileOptions()}</select><button id="refreshBtn" class="btn btn-soft">Refresh</button></div></header>
-      ${contentHtml}
-    </main>
-  </section>`;
-}
-function label(value) { return value[0].toUpperCase() + value.slice(1); }
-function profileOptions() {
-  if (!state.profiles.length) return `<option value="">No profiles</option>`;
-  return state.profiles.map((p) => `<option value="${p.name}" ${p.name === state.selectedProfile ? "selected" : ""}>${p.name}${p.running ? " · running" : ""}</option>`).join("");
-}
+import { state } from '../../app/state.js';
+const pages=['dashboard','servers','installer','console','files','backups','network','settings','system'];
+const meta={dashboard:['Dashboard','Install, start and manage Minecraft profiles.'],servers:['Servers','View all configured profiles.'],installer:['Installer','Download and install Velocity, Paper or Purpur.'],console:['Console','Read logs and send commands.'],files:['Files','Manage files inside selected profile workdir.'],backups:['Backups','Backup tools.'],network:['Network','Gateway and tunnel overview.'],settings:['Settings','Panel preferences.'],system:['System','Core health and version.']};
+export function LayoutView(content){let [title,sub]=meta[state.page]||meta.dashboard;return `<section class="app"><aside class="sidebar"><div class="brand"><div class="logo small">M</div><div><b>MJT Panel</b><span>web 0.1.0</span></div></div><nav class="nav">${pages.map(p=>`<button class="nav-link ${state.page===p?'active':''}" data-page="${p}">${p[0].toUpperCase()+p.slice(1)}</button>`).join('')}</nav><div class="sidebar-footer"><div class="api-pill"><span class="dot"></span>${state.demo?'Demo mode':'API mode'}</div><button id="logoutBtn" class="btn logout">Logout</button></div></aside><main class="content"><header class="topbar"><div><h1>${title}</h1><p class="muted">${sub}</p></div><div class="toolbar"><select id="profileSelect">${options()}</select><button id="refreshBtn" class="btn soft">Refresh</button></div></header>${content}</main></section>`}
+function options(){if(!state.profiles.length)return '<option>No profiles</option>';return state.profiles.map(p=>`<option value="${p.name}" ${p.name===state.selectedProfile?'selected':''}>${p.name}</option>`).join('')}
