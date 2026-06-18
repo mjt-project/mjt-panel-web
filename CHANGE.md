@@ -1,8 +1,12 @@
 # CHANGE.md
 
-## 0.0.8 - UI Polish
+## 0.0.9 - Blank Screen Fix
 
-- Reworked all component styling for light UI.
-- Fixed form spacing and labels.
-- Fixed buttons, hover, focus, cards, sidebar and file manager contrast.
-- Kept modular frontend structure.
+### Fixed
+
+- Fixed frontend blank white screen caused by an invalid newline string in `src/app/App.js`.
+- Corrected console log rendering to use `join("\n")`.
+
+### Notes
+
+This is a frontend-only fix. Upload this panel release and update `app.properties` to tag `0.0.9`.

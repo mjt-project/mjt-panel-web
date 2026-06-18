@@ -1,6 +1,6 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "type": "static-frontend",
   "entry": "index.html",
   "minimumCore": "3.0.0-SNAPSHOT+6",
