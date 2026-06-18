@@ -1,57 +1,33 @@
 # CHANGE.md
 
-## 0.0.14 — Complete Panel UI Setup
+## 0.0.15 - Server-first UX rebuild
 
-This release completes the **frontend UI structure** for all planned panel areas.
+### Changed
 
-### Fully set up in the UI
+- Removed the crowded always-visible left sidebar.
+- Rebuilt the first screen after login around only three actions:
+  - welcome
+  - create server
+  - select an existing server
+- Clicking a server now opens a dedicated management workspace.
 
-- Login and Demo Mode
-- Dashboard
-- Server profiles
-- Velocity / Paper / Purpur installer
-- Console
-- File Manager
-  - browse folders
-  - open and edit files
-  - save files
-  - create file/folder
-  - rename
-  - delete confirmation
-- Backups
-  - list
-  - create
-  - restore confirmation
-  - delete confirmation
-- Players
-  - online/offline list
-  - kick / ban / OP / whitelist action UI
-- Network
-  - panel access, tunnel, gateway and port overview
-- Settings
-  - API base and browser-side panel preferences
-- System
-  - MJT Core, Java, memory, disk and frontend health overview
+### Added
 
-### Architecture
+- Dedicated server detail layout with tabs:
+  - Overview
+  - Console
+  - Files
+  - Backups
+  - Settings
+- Professional create-server modal for Velocity, Paper and Purpur.
+- Clear danger handling: Kill is hidden inside a menu and requires confirmation.
+- Capability-aware Files tab, which does not call missing APIs.
+- Error boundary so a runtime exception does not become a blank page.
+- Local mock/demo mode with `dev` token.
 
-- React + TypeScript + Vite + Mantine
-- Static build only at runtime
-- Feature-first folders under `src/features/`
-- Mock API covers every current UI page in Demo Mode
-- Java Core APIs are connected when available; missing future endpoints only affect their own pages
+### UX decisions
 
-### Notes
-
-This is a **complete UI setup** release. Some pages are ready for real MJT API bindings that may be implemented in Java Core later:
-
-```text
-/api/backups/*
-/api/players/*
-/api/network/status
-/api/system/status
-/api/files/create
-/api/files/mkdir
-/api/files/rename
-/api/files/delete
-```
+- Start is the primary action only when the server is stopped.
+- Stop is a quiet secondary action when the server is running.
+- Restart and Kill are grouped in a More menu.
+- Unfinished backend features do not show 404 errors to the user.

@@ -1,30 +1,21 @@
 import { createTheme, rem } from '@mantine/core';
 
 export const theme = createTheme({
-  fontFamily: 'Be Vietnam Pro, ui-sans-serif, system-ui, sans-serif',
-  fontFamilyMonospace: 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace',
-  primaryColor: 'indigo',
-  defaultRadius: 'md',
-  colors: {
-    indigo: [
-      '#eef2ff', '#e0e7ff', '#c7d2fe', '#a5b4fc', '#818cf8',
-      '#6366f1', '#4f46e5', '#4338ca', '#3730a3', '#312e81',
-    ],
+  fontFamily: '"Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  headings: {
+    fontFamily: '"Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif',
+    fontWeight: '650'
   },
-  headings: { fontFamily: 'Be Vietnam Pro, ui-sans-serif, system-ui, sans-serif' },
+  primaryColor: 'indigo',
+  primaryShade: 6,
+  defaultRadius: 'md',
+  spacing: { xs: rem(8), sm: rem(12), md: rem(16), lg: rem(24), xl: rem(32) },
   components: {
     Button: {
-      defaultProps: { radius: 'md' },
-      styles: {
-        root: { fontWeight: 600 },
-      },
+      defaultProps: { radius: 'md', fw: 600 }
     },
-    TextInput: {
-      defaultProps: { radius: 'md' },
-    },
-    Select: {
-      defaultProps: { radius: 'md' },
-    },
-  },
-  other: { panelHeaderHeight: rem(66) },
+    Paper: {
+      defaultProps: { radius: 'lg', withBorder: true }
+    }
+  }
 });

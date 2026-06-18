@@ -1,119 +1,101 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Center, Loader, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { useDisclosure } from '@mantine/hooks';
-import { createApi, type MjtApi } from '../api/client';
-import type { CoreStatus, InstallRequest, MinecraftProfile } from '../api/types';
-import { authStorage } from '../features/auth/storage';
+import { MantineProvider } from '@mantine/core';
+import { Notifications, notifications } from '@mantine/notifications';
+import { ApiClient } from '../api/client';
+import type { Capabilities, PanelStatus, ServerProfile } from '../api/types';
 import { LoginPage } from '../features/auth/LoginPage';
-import { DashboardPage } from '../features/dashboard/DashboardPage';
-import { ServersPage } from '../features/servers/ServersPage';
-import { InstallerPage } from '../features/installer/InstallerPage';
-import { ConsolePage } from '../features/console/ConsolePage';
-import { FilesPage } from '../features/files/FilesPage';
-import { BackupsPage } from '../features/backups/BackupsPage';
-import { PlayersPage } from '../features/players/PlayersPage';
-import { NetworkPage } from '../features/network/NetworkPage';
-import { SettingsPage } from '../features/settings/SettingsPage';
-import { SystemPage } from '../features/system/SystemPage';
-import { EmptyState } from '../shared/components/EmptyState';
-import { ConfirmActionModal } from '../shared/components/ConfirmActionModal';
-import { PanelLayout } from './PanelLayout';
+import { clearToken, localDevEnabled, readApiBase, readToken, saveApiBase, saveToken } from '../features/auth/storage';
+import { HomePage } from '../features/home/HomePage';
+import { CreateServerModal, type CreateServerInput } from '../features/create-server/CreateServerModal';
+import { ServerDetailPage } from '../features/server-detail/ServerDetailPage';
+import { ErrorBoundary } from '../shared/ErrorBoundary';
+import { theme } from '../theme/theme';
 
-export function App() {
-  const [token, setToken] = useState(authStorage.token());
-  const [apiBase, setApiBase] = useState(authStorage.apiBase());
+function MainApp() {
+  const [token, setToken] = useState(readToken());
+  const [apiBase, setApiBase] = useState(readApiBase());
   const [demo, setDemo] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(Boolean(token));
-  const [page, setPage] = useState('dashboard');
-  const [status, setStatus] = useState<CoreStatus | null>(null);
-  const [profiles, setProfiles] = useState<MinecraftProfile[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState('');
-  const [navOpened, navControl] = useDisclosure(false);
-  const [pending, setPending] = useState<{ action: 'stop' | 'restart' | 'kill'; profile: string } | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  const [servers, setServers] = useState<ServerProfile[]>([]);
+  const [status, setStatus] = useState<PanelStatus>({});
+  const [capabilities, setCapabilities] = useState<Capabilities>({ files: false, backups: false, players: false, network: false, system: false });
+  const [selected, setSelected] = useState<ServerProfile>();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [installError, setInstallError] = useState<string>();
 
-  const api = useMemo<MjtApi>(() => createApi({ baseUrl: apiBase, token, demo }), [apiBase, token, demo]);
+  const api = useMemo(() => new ApiClient(apiBase, token, demo), [apiBase, token, demo]);
 
-  const refresh = async () => {
-    const [nextStatus, result] = await Promise.all([api.getStatus(), api.getProfiles()]);
-    const nextProfiles = Array.isArray(result) ? result : result.profiles || [];
+  const loadPanelFor = async (client: ApiClient) => {
+    const [nextStatus, nextServers, nextCapabilities] = await Promise.all([client.status(), client.servers(), client.capabilities()]);
     setStatus(nextStatus);
-    setProfiles(nextProfiles);
-    setSelectedProfile((current) => current || nextStatus.activeProfile || nextProfiles[0]?.name || '');
+    setServers(nextServers);
+    setCapabilities(nextCapabilities);
+    setSelected((current) => current ? nextServers.find((server) => server.name === current.name) : undefined);
+  };
+
+  const loadPanel = async () => loadPanelFor(api);
+
+  const authenticate = async (nextApiBase: string, nextToken: string) => {
+    setBusy(true); setError(undefined);
+    const useDemo = localDevEnabled(nextToken);
+    const nextApi = new ApiClient(nextApiBase, nextToken, useDemo);
+    try {
+      await nextApi.checkAuth();
+      const [nextStatus, nextServers, nextCapabilities] = await Promise.all([nextApi.status(), nextApi.servers(), nextApi.capabilities()]);
+      saveApiBase(nextApiBase);
+      saveToken(nextToken);
+      setStatus(nextStatus);
+      setServers(nextServers);
+      setCapabilities(nextCapabilities);
+      setApiBase(nextApiBase);
+      setToken(nextToken);
+      setDemo(useDemo);
+      setAuthenticated(true);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to sign in.');
+    } finally { setBusy(false); }
+  };
+
+  const openDemo = async () => {
+    const nextApi = new ApiClient('/api', 'dev', true);
+    setBusy(true); setError(undefined);
+    try {
+      await nextApi.checkAuth();
+      const [nextStatus, nextServers, nextCapabilities] = await Promise.all([nextApi.status(), nextApi.servers(), nextApi.capabilities()]);
+      setStatus(nextStatus);
+      setServers(nextServers);
+      setCapabilities(nextCapabilities);
+      setApiBase('/api');
+      setToken('dev');
+      setDemo(true);
+      setAuthenticated(true);
+    } finally { setBusy(false); }
   };
 
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
-    api.checkAuth().then(async () => { await refresh(); setAuthenticated(true); }).catch(() => { authStorage.clear(); setToken(''); }).finally(() => setLoading(false));
+    if (!token || authenticated) return;
+    void authenticate(apiBase, token);
   }, []);
 
-  const login = async (nextToken: string, nextBase: string, nextDemo: boolean) => {
-    const client = createApi({ baseUrl: nextBase, token: nextToken, demo: nextDemo });
-    await client.checkAuth();
-    authStorage.save(nextToken, nextBase);
-    setToken(nextToken); setApiBase(nextBase); setDemo(nextDemo);
-    const [nextStatus, result] = await Promise.all([client.getStatus(), client.getProfiles()]);
-    const nextProfiles = Array.isArray(result) ? result : result.profiles || [];
-    setStatus(nextStatus); setProfiles(nextProfiles); setSelectedProfile(nextStatus.activeProfile || nextProfiles[0]?.name || ''); setAuthenticated(true);
-  };
-
-  const updateApiBase = (nextBase: string) => {
-    authStorage.save(token, nextBase);
-    setApiBase(nextBase);
-  };
-
-  const doAction = async (action: 'start' | 'stop' | 'restart' | 'kill', profile: string) => {
-    if (!profile) return;
-    if (action === 'stop' || action === 'restart' || action === 'kill') { setPending({ action, profile }); return; }
-    await runAction(action, profile);
-  };
-
-  const runAction = async (action: 'start' | 'stop' | 'restart' | 'kill', profile: string) => {
-    setActionLoading(true);
+  const createServer = async (input: CreateServerInput) => {
+    setBusy(true); setInstallError(undefined);
     try {
-      await api.action(profile, action);
-      notifications.show({ color: 'teal', title: 'Action sent', message: `${action} was sent to ${profile}` });
-      await refresh();
-    } catch (error) {
-      notifications.show({ color: 'red', title: 'Action failed', message: error instanceof Error ? error.message : 'Unknown error' });
-    } finally { setActionLoading(false); setPending(null); }
+      await api.install({ software: input.software, provider: input.software, profile: input.profile, version: input.version, build: input.build, port: input.port, memory: input.memory, acceptEula: input.acceptEula, force: input.force });
+      setCreateOpen(false); await loadPanel();
+      notifications.show({ title: 'Server created', message: `${input.profile} is ready to manage.`, color: 'teal' });
+    } catch (reason) { setInstallError(reason instanceof Error ? reason.message : 'Install failed.'); }
+    finally { setBusy(false); }
   };
 
-  const install = async (request: InstallRequest) => {
-    await api.install(request);
-    await refresh();
-    notifications.show({ color: 'teal', title: 'Server installed', message: `${request.profile} is ready to start` });
-    setSelectedProfile(request.profile);
-    setPage('servers');
-  };
+  if (!authenticated) return <LoginPage initialApiBase={apiBase} initialToken={token} busy={busy} error={error} onSubmit={authenticate} onDemo={openDemo} />;
 
-  const logout = () => {
-    authStorage.clear(); setToken(''); setDemo(false); setAuthenticated(false); setProfiles([]); setStatus(null); setPage('dashboard'); setSelectedProfile('');
-  };
+  if (selected) return <ServerDetailPage server={selected} api={api} capabilities={capabilities} onBack={() => setSelected(undefined)} onChanged={loadPanel} />;
 
-  if (loading) return <Center mih="100vh"><Stack align="center"><Loader color="indigo" /><Text c="dimmed">Connecting to MJT Panel…</Text></Stack></Center>;
-  if (!authenticated) return <LoginPage defaultApiBase={apiBase} defaultToken={token} onLogin={login} />;
+  return <><HomePage servers={servers} loading={busy} onCreate={() => setCreateOpen(true)} onManage={setSelected} onRefresh={() => void loadPanel()} /><CreateServerModal opened={createOpen} busy={busy} error={installError} onClose={() => setCreateOpen(false)} onCreate={createServer} /></>;
+}
 
-  const content = (() => {
-    switch (page) {
-      case 'dashboard': return <DashboardPage status={status} profiles={profiles} selectedProfile={selectedProfile} demo={demo} onSelect={setSelectedProfile} onStart={(profile) => doAction('start', profile)} onGo={setPage} />;
-      case 'servers': return <ServersPage profiles={profiles} selectedProfile={selectedProfile} onSelect={setSelectedProfile} onAction={doAction} onGo={setPage} />;
-      case 'installer': return <InstallerPage onInstall={install} />;
-      case 'console': return selectedProfile ? <ConsolePage api={api} profile={selectedProfile} /> : <EmptyState title="Choose a profile" description="Select a Minecraft profile from the top bar before opening console." action={<Button onClick={() => setPage('servers')}>Open servers</Button>} />;
-      case 'files': return <FilesPage api={api} profile={selectedProfile} />;
-      case 'backups': return <BackupsPage api={api} profile={selectedProfile} />;
-      case 'players': return <PlayersPage api={api} profile={selectedProfile} />;
-      case 'network': return <NetworkPage api={api} />;
-      case 'settings': return <SettingsPage apiBase={apiBase} demo={demo} onApiBase={updateApiBase} />;
-      case 'system': return <SystemPage api={api} status={status} />;
-      default: return <EmptyState title="Page not found" description="Return to Dashboard and try again." action={<Button onClick={() => setPage('dashboard')}>Dashboard</Button>} />;
-    }
-  })();
-
-  return <>
-    <PanelLayout page={page} profiles={profiles} selectedProfile={selectedProfile} demo={demo} opened={navOpened} onToggle={navControl.toggle} onPage={setPage} onProfile={setSelectedProfile} onLogout={logout}>{content}</PanelLayout>
-    <ConfirmActionModal opened={Boolean(pending)} action={pending?.action || null} profile={pending?.profile || ''} loading={actionLoading} onClose={() => setPending(null)} onConfirm={() => pending && runAction(pending.action, pending.profile)} />
-  </>;
+export function App() {
+  return <MantineProvider theme={theme} defaultColorScheme="light"><Notifications position="top-right" /><ErrorBoundary><MainApp /></ErrorBoundary></MantineProvider>;
 }

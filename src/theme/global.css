@@ -1,28 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 :root {
-  color: #1f2937;
-  background: #f7f8fc;
+  color: #172033;
+  background: #f8fafc;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
 
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; }
-body { margin: 0; background: #f7f8fc; }
-button, input, textarea, select { font: inherit; }
+body { margin: 0; background: #f8fafc; }
+
+.mjt-page-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(700px 350px at 78% -2%, rgba(129, 140, 248, 0.12), transparent 65%),
+    #f8fafc;
+}
+
+.mjt-logo {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, .22);
+}
 
 .mjt-console {
-  min-height: 380px;
-  max-height: 60vh;
-  overflow: auto;
-  margin: 0;
-  padding: 16px;
-  border-radius: 12px;
-  color: #dbeafe;
-  background: #111827;
-  font-family: JetBrains Mono, ui-monospace, SFMono-Regular, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
-  line-height: 1.7;
+  line-height: 1.68;
   white-space: pre-wrap;
 }
 
-.file-row:hover { background: #f6f7fb; }
+.mjt-server-card {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.mjt-server-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, .08);
+  border-color: #c7d2fe;
+}
+
+.mjt-tab-panel { padding-top: 18px; }

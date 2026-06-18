@@ -1,87 +1,91 @@
 # MJT Panel Web
 
-**Version:** `0.0.14`  
-**Stack:** React + TypeScript + Vite + Mantine  
-**Runtime:** Static files served by MJT Java Core
+**Version:** `0.0.15`  
+**Design:** Server-first, no crowded sidebar.
 
-MJT Panel Web is the frontend for Mini Java Terminal. It is developed as a proper React application, but the MJT host only serves the compiled `dist/` files. Node.js and Vite are not required on the runtime host.
+MJT Panel Web is a React + Vite + Mantine frontend for MJT.
 
-## Panel areas
+## Main UX flow
 
-| Area | UI status | Core API status |
-|---|---:|---:|
-| Login | Ready | Ready |
-| Dashboard | Ready | Ready |
-| Servers | Ready | Ready |
-| Installer | Ready | Ready |
-| Console | Ready | Ready |
-| Files | Ready | Basic API required |
-| Backups | Ready | Future API required |
-| Players | Ready | Future API required |
-| Network | Ready | Future API required |
-| Settings | Ready | Browser preferences now |
-| System | Ready | Future API optional |
+```text
+Login
+→ Welcome / server list
+→ Create server OR select a server
+→ Manage one server in its own workspace
+→ Overview / Console / Files / Backups / Settings
+```
 
-## Development
+The home page intentionally contains only what matters:
+
+- Welcome and a clear **Create server** action
+- Searchable server list
+- Server status
+- A single **Manage server** action per server
+
+There is no persistent left sidebar full of unfinished features.
+
+## Local development
 
 ```bash
-npm ci
+npm install
 npm run dev
 ```
 
-Open the Vite URL. Use **Demo Mode** for UI work with mock data.
+Open `http://127.0.0.1:5173`.
 
-To build the static release:
+Use token `dev` on localhost for mock data.
+
+To proxy API requests to MJT Core:
+
+```bash
+MJT_API_TARGET=http://127.0.0.1:9090 npm run dev
+```
+
+## Build for MJT runtime
 
 ```bash
 npm run check
 npm run build
 ```
 
-The output is created in:
-
-```text
-dist/
-```
-
-## Runtime installation
-
-MJT Java Core should download the built release archive and extract it to:
+Upload the contents of `dist/` to a GitHub release asset. The asset must have `index.html` at the root because MJT extracts it into:
 
 ```text
 /home/container/MJT/panel/static/
 ```
 
-The directory must contain `index.html` at its root.
+## API compatibility
 
-## UI source layout
+Required today:
 
 ```text
-src/
-├── api/           # MJT API client, mock API, types
-├── app/           # app shell and page routing
-├── features/      # one folder per panel area
-│   ├── auth/
-│   ├── dashboard/
-│   ├── servers/
-│   ├── installer/
-│   ├── console/
-│   ├── files/
-│   ├── backups/
-│   ├── players/
-│   ├── network/
-│   ├── settings/
-│   └── system/
-├── shared/        # reusable UI components
-└── theme/         # Mantine theme and global CSS
+GET  /api/auth/check
+GET  /api/status
+GET  /api/minecraft/status
+POST /api/minecraft/install
+POST /api/minecraft/start
+POST /api/minecraft/stop
+POST /api/minecraft/restart
+POST /api/minecraft/kill
+POST /api/minecraft/send
+GET  /api/minecraft/logs?profile=<name>
 ```
 
-## Security model
+Optional capability API:
 
-- Panel uses the MJT token with `X-MJT-Token` and `Authorization: Bearer` headers.
-- File operations must stay inside the selected profile workdir.
-- Dangerous server, file and backup actions need confirmation.
-- Public exposure should be explicit and separate from local panel defaults.
+```text
+GET /api/capabilities
+```
+
+For Files, MJT Workspace Foundation uses:
+
+```text
+GET  /api/workspaces/{id}/files/list?path=
+GET  /api/workspaces/{id}/files/read?path=
+POST /api/workspaces/{id}/files/write
+```
+
+If a feature is not available in core, the panel presents a clear unavailable state instead of calling missing endpoints.
 
 ## License
 
