@@ -1,2 +1,13 @@
-import { state } from '../../app/state.js';
-export function ConsoleView(){return `<div class="card"><div class="card-head"><div><h3>Console</h3><p class="muted">Selected profile: ${state.selectedProfile||'none'}</p></div><button id="pauseLogsBtn" class="btn soft small">${state.logsPaused?'Resume logs':'Pause logs'}</button></div><pre id="consoleOutput" class="terminal console"></pre><div class="command-row"><input id="commandInput" placeholder="Type command, e.g. list"><button id="sendCommandBtn" class="btn primary">Send</button></div><div class="history">${state.commandHistory.map(c=>`<button data-history-command="${c}">${c}</button>`).join('')}</div></div>`}
+export function ConsoleView({ profile, lines, paused, history }) {
+  return `
+    <section class="console-layout">
+      <article class="surface-card console-card">
+        <div class="section-heading"><div><span class="eyebrow">${profile ? escapeHtml(profile.name) : 'No profile'}</span><h2>Console</h2><p>${paused ? 'Log polling paused.' : 'Live log polling every 1.8 seconds.'}</p></div><div class="inline-actions"><button id="logs-pause-button" class="button button-secondary">${paused ? 'Resume logs' : 'Pause logs'}</button><button id="logs-clear-button" class="button button-ghost">Clear view</button></div></div>
+        <pre id="console-output" class="console-output">${escapeHtml(lines.join('\n') || 'Select a profile to load console output.')}</pre>
+        <form id="console-form" class="console-form"><input id="console-command" class="field-control mono" placeholder="Type a command, e.g. list" autocomplete="off" /><button class="button button-primary" type="submit">Send</button></form>
+        ${history.length ? `<div class="command-history">${history.map((item) => `<button class="history-chip" data-command-history="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join('')}</div>` : ''}
+      </article>
+      <aside class="surface-card console-side"><span class="eyebrow">Tip</span><h3>Use safe commands first</h3><p>Try <code>list</code>, <code>say Hello</code> or <code>help</code> before using destructive commands.</p></aside>
+    </section>`;
+}
+function escapeHtml(value) { return String(value || '').replace(/[&"<>']/g, (char) => ({ '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' })[char]); }

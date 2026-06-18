@@ -1,2 +1,4 @@
-import { state } from '../../app/state.js';
-export function PlaceholderView(){return `<div class="card empty"><h3>${state.page}</h3><p>This page is ready for the next API module.</p></div>`}
+export function PlaceholderView({ page, description }) {
+  return `<section class="empty-page"><article class="surface-card empty-card"><span class="eyebrow">MJT Panel</span><h2>${capitalize(page)}</h2><p>${description}</p><p>This feature has its own reserved route and will be connected when the related core API is ready.</p></article></section>`;
+}
+function capitalize(value) { return String(value).charAt(0).toUpperCase() + String(value).slice(1); }

@@ -1,3 +1,46 @@
-import { state, selectedProfile } from '../../app/state.js';
-import { serverCard } from '../../features/servers/serverCard.js';
-export function DashboardView(){const p=selectedProfile();const running=state.profiles.filter(x=>x.running).length;return `<div class="hero"><div><span class="muted"><b>SELECTED PROFILE</b></span><h2>${state.selectedProfile||'none'}</h2><p>${p?`${p.type} • ${p.workdir}`:'No selected profile.'}</p></div><div class="hero-actions"><button class="btn success" data-action="start" data-profile="${state.selectedProfile}">Start</button><button class="btn warn" data-action="stop" data-profile="${state.selectedProfile}">Stop</button><button class="btn console" data-go="console">Open console</button></div></div><div class="stats-grid"><div class="stat"><span>Core</span><strong>${state.status?.version||'unknown'}</strong></div><div class="stat"><span>Running</span><strong>${running}</strong></div><div class="stat"><span>Profiles</span><strong>${state.profiles.length}</strong></div><div class="stat"><span>Mode</span><strong>${state.demo?'Demo':'API'}</strong></div></div><div class="grid-2"><div class="card"><div class="card-head"><h3>First-run checklist</h3></div><div class="checklist"><div class="check-item done"><span class="check-dot"></span>Login token accepted</div><div class="check-item ${state.profiles.length?'done':''}"><span class="check-dot"></span>At least one profile configured</div><div class="check-item done"><span class="check-dot"></span>Installer ready</div><div class="check-item ${state.selectedProfile?'done':''}"><span class="check-dot"></span>Console selected</div></div></div><div class="card"><div class="card-head"><h3>Server overview</h3><button class="btn soft small" data-go="servers">Manage</button></div><div class="server-list">${state.profiles.map(x=>serverCard(x,x.name===state.selectedProfile)).join('')}</div></div></div>`}
+export function DashboardView({ profile, profiles, status }) {
+  const running = profiles.filter((item) => item.running).length;
+  return `
+    <section class="stack-lg">
+      <article class="context-card">
+        <div class="context-copy">
+          <span class="eyebrow">Selected server</span>
+          <h2>${profile ? escapeHtml(profile.name) : 'No profile selected'}</h2>
+          <p>${profile ? `${escapeHtml(profile.type || 'Minecraft')} · ${escapeHtml(profile.workdir || 'workdir unavailable')}` : 'Install a server or select an existing profile to begin.'}</p>
+        </div>
+        <div class="context-actions">
+          <button class="button button-primary" data-server-action="start" data-profile="${escapeHtml(profile?.name || '')}">Start server</button>
+          <button class="button button-secondary" data-server-action="stop" data-profile="${escapeHtml(profile?.name || '')}">Stop</button>
+          <button class="button button-ghost" data-server-action="console" data-profile="${escapeHtml(profile?.name || '')}">Console</button>
+        </div>
+      </article>
+
+      <section class="metric-grid">
+        ${metric('Core', status?.version || 'Unknown', 'MJT Java core')}
+        ${metric('Running', String(running), 'active server processes')}
+        ${metric('Profiles', String(profiles.length), 'configured servers')}
+        ${metric('Connection', status ? 'Online' : 'Checking', 'panel API status')}
+      </section>
+
+      <section class="content-grid">
+        <article class="surface-card">
+          <div class="section-heading"><div><h3>Getting started</h3><p>Keep the setup steps short and visible.</p></div></div>
+          <ol class="setup-list">
+            <li class="is-done"><span>1</span>Panel session verified</li>
+            <li class="${profiles.length ? 'is-done' : ''}"><span>2</span>At least one profile configured</li>
+            <li><span>3</span>Start a profile and open its console</li>
+          </ol>
+        </article>
+        <article class="surface-card">
+          <div class="section-heading"><div><h3>Profiles</h3><p>Choose one to continue working.</p></div><button class="button button-text" data-page="servers">View all</button></div>
+          <div class="compact-profile-list">
+            ${profiles.length ? profiles.map(profileRow).join('') : '<div class="empty-inline">No profiles installed yet.</div>'}
+          </div>
+        </article>
+      </section>
+    </section>`;
+}
+
+function metric(label, value, hint) { return `<article class="metric-card"><span>${label}</span><strong>${escapeHtml(value)}</strong><small>${hint}</small></article>`; }
+function profileRow(profile) { return `<button class="compact-profile-row" data-select-profile="${escapeHtml(profile.name)}"><span class="profile-name"><i class="status-mini ${profile.running ? 'running' : ''}"></i>${escapeHtml(profile.name)}</span><span>${escapeHtml(profile.type || 'Minecraft')}</span></button>`; }
+function escapeHtml(value) { return String(value || '').replace(/[&"<>']/g, (char) => ({ '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' })[char]); }

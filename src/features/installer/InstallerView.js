@@ -1,1 +1,38 @@
-export function InstallerView(){return `<div class="grid-2"><div class="card"><div class="card-head"><h3>Install Minecraft server</h3><span class="pill">Velocity / Paper / Purpur</span></div><div class="form-grid"><div><label>Provider</label><select id="installProvider"><option value="velocity">Velocity</option><option value="paper">Paper</option><option value="purpur">Purpur</option></select></div><div><label>Profile name</label><input id="installProfile" value="velocity"></div><div><label>Version</label><input id="installVersion" value="latest"></div><div><label>Build</label><input id="installBuild" value="latest"></div><div><label>Server port</label><input id="installPort" value="25565"></div><div><label>Java memory</label><input id="installMemory" value="512M"></div></div><div class="checkbox-row"><label><input type="checkbox" id="installEula"> Accept EULA for Paper/Purpur</label><label><input type="checkbox" id="installForce" checked> Replace existing jar</label></div><button id="installBtn" class="btn primary full">Install server</button><pre id="installOutput" class="terminal">Ready.</pre></div><div class="card"><h3>Recommended layouts</h3><div class="recipe-list"><button class="recipe" data-recipe="velocity"><b>Velocity proxy</b><br><span class="muted">profile: velocity / port: 25565</span></button><button class="recipe" data-recipe="paper"><b>Paper SMP</b><br><span class="muted">profile: smp / port: 25566</span></button><button class="recipe" data-recipe="purpur"><b>Purpur lobby</b><br><span class="muted">profile: lobby / port: 25567</span></button></div></div></div>`}
+export function InstallerView() {
+  return `
+    <section class="installer-layout">
+      <article class="surface-card installer-card">
+        <div class="section-heading"><div><span class="eyebrow">New server</span><h2>Install a Minecraft profile</h2><p>Start with a stable default, then adjust it later.</p></div></div>
+        <form id="installer-form" class="installer-form">
+          <div class="field-grid">
+            ${selectField('Software', 'software', [['velocity','Velocity proxy'],['paper','Paper server'],['purpur','Purpur server']])}
+            ${textField('Profile name', 'profile', 'velocity')}
+            ${textField('Minecraft version', 'version', 'latest')}
+            ${textField('Build', 'build', 'latest')}
+            ${textField('Server port', 'port', '25565')}
+            ${textField('Java memory', 'memory', '512M')}
+          </div>
+          <div class="checkbox-stack">
+            <label class="check-control"><input type="checkbox" name="acceptEula" /><span>I accept the EULA for Paper / Purpur.</span></label>
+            <label class="check-control"><input type="checkbox" name="force" /><span>Replace an existing server jar.</span></label>
+          </div>
+          <button class="button button-primary button-wide" type="submit">Install server</button>
+        </form>
+        <div id="installer-output" class="install-notice" data-tone="neutral">Ready to install.</div>
+      </article>
+
+      <aside class="surface-card recipe-card">
+        <span class="eyebrow">Quick presets</span>
+        <h3>Common layouts</h3>
+        <p>Use a preset to fill the form, then review before installing.</p>
+        <div class="recipe-stack">
+          ${recipe('velocity', 'Velocity proxy', 'Default Java entry · port 25565')}
+          ${recipe('paper', 'Paper SMP', 'Dedicated backend · port 25566')}
+          ${recipe('purpur', 'Purpur lobby', 'Lightweight lobby · port 25567')}
+        </div>
+      </aside>
+    </section>`;
+}
+function textField(label, name, value) { return `<label class="field"><span>${label}</span><input class="field-control" name="${name}" value="${value}" /></label>`; }
+function selectField(label, name, options) { return `<label class="field"><span>${label}</span><select class="field-control" name="${name}">${options.map(([v,t]) => `<option value="${v}">${t}</option>`).join('')}</select></label>`; }
+function recipe(id, title, text) { return `<button type="button" class="recipe-item" data-recipe="${id}"><strong>${title}</strong><span>${text}</span></button>`; }

@@ -1,28 +1,22 @@
 # CHANGE.md
 
-## 0.0.11 - UX Moodboard + Button Polish
-
-### Added
-
-- Light-first button moodboard.
-- Semantic action button tokens:
-  - Start: calm emerald
-  - Stop: soft amber
-  - Kill: soft rose
-  - Console: soft indigo
-  - Primary: hosting-panel blue
-- Better focus-visible states.
-- Better hover/active states.
-- Better selected server card state.
-- Moodboard helper CSS classes for future pages.
+## 0.0.12 — Calmer light UI reset
 
 ### Changed
 
-- Versioning returned to `0.0.x` as requested.
-- Replaced harsh action button colors with low-glare admin panel colors.
-- Reduced high contrast and heavy shadows.
-- Kept vanilla CSS + Anime.js CDN, no Tailwind and no build step.
+- Rebuilt visual system around a neutral light shell, quiet cards, compact navigation and clearer hierarchy.
+- Replaced generic/rainbow action buttons with a deliberate action model:
+  - **Start** = blue primary
+  - **Stop** = neutral secondary
+  - **Restart** = outline action
+  - **Kill** = tucked into More menu
+- Added Be Vietnam Pro UI font and JetBrains Mono console font through CDN.
+- Kept Anime.js only as an optional enhancement.
+- Improved installer layout and field spacing.
+- Added explicit loading, empty, error and unavailable states.
+- File Manager now avoids automatic calls to unimplemented backend APIs.
 
-### Notes
+### Fixed
 
-This release is frontend-only. Upload it to `mjt-panel-web` and tag it as `0.0.11`.
+- Added top-level bootstrap error fallback so a JavaScript issue cannot silently produce a blank white page.
+- Added user-visible API status and retry entry points.
