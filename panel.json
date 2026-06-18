@@ -1,9 +1,12 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "type": "static-frontend",
   "entry": "index.html",
-  "minimumCore": "3.0.0-SNAPSHOT+7",
+  "module": true,
+  "minimumCore": "3.0.0-SNAPSHOT+6",
+  "recommendedCore": "3.0.0-SNAPSHOT+8",
   "apiBase": "/api",
-  "license": "MIT"
+  "license": "MIT",
+  "structure": "modular-feature-folders"
 }

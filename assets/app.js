@@ -20,7 +20,9 @@ const demoProfiles = [
 function tokenHeaders() {
   return {
     "Content-Type": "application/json",
-    "X-MJT-Token": state.token,
+    // "X-MJT-Token": state.token,
+    // "Authorization": `Bearer ${state.token}`
+    "X-MJT-Token": "state.token",
     "Authorization": `Bearer ${state.token}`
   };
 }
