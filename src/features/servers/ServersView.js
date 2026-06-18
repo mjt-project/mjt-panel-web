@@ -1,6 +1,6 @@
-import { state } from "../../app/state.js";
-import { serverCard } from "../../ui/serverCard.js";
+import { state } from '../../app/state.js';
+import { serverCard } from '../../ui/serverCard.js';
 
 export function ServersView() {
-  return `<section class="page active"><div class="card"><div class="card-head"><h3>Server profiles</h3><button class="btn primary small-btn" data-go="installer">Install new</button></div><div class="servers-grid">${state.profiles.length ? state.profiles.map((p) => serverCard(p, p.name === state.selectedProfile, true)).join("") : `<div class="empty"><p>No profiles yet. Open Installer to create Velocity, Paper or Purpur.</p></div>`}</div></div></section>`;
+  return `<section><div class="rounded-3xl border border-mjt-line bg-mjt-card/80 p-5"><div class="mb-4 flex items-center justify-between"><h3 class="text-xl font-black">Server profiles</h3><button class="rounded-2xl bg-cyan-400 px-4 py-3 font-black text-slate-950" data-go="installer">Install new</button></div><div class="grid grid-cols-3 gap-4 max-xl:grid-cols-2 max-md:grid-cols-1">${state.profiles.length ? state.profiles.map((p) => serverCard(p, p.name === state.selectedProfile, true)).join('') : '<p class="text-mjt-muted">No profiles yet.</p>'}</div></div></section>`;
 }

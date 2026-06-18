@@ -4,14 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MJT Panel</title>
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="styles/layout.css" />
-  <link rel="stylesheet" href="styles/components.css" />
-  <link rel="stylesheet" href="styles/pages.css" />
+  <script>
+    tailwind = {
+      config: {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              mjt: {
+                bg: '#08111f',
+                card: '#111d31',
+                soft: '#152238',
+                line: '#263750',
+                text: '#e8eef8',
+                muted: '#94a3b8',
+                cyan: '#38bdf8'
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: radial-gradient(circle at 12% 0%, rgba(56,189,248,.20), transparent 30%), radial-gradient(circle at 92% 12%, rgba(37,99,235,.18), transparent 28%), #08111f; }
+    .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+  </style>
 </head>
-<body>
+<body class="min-h-screen text-mjt-text antialiased">
   <div id="app"></div>
-  <div id="toast" class="toast hidden"></div>
+  <div id="toast" class="fixed right-5 top-5 z-50 hidden max-w-md rounded-2xl border border-mjt-line bg-slate-950 px-4 py-3 shadow-2xl"></div>
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

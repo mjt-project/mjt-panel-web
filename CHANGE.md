@@ -1,19 +1,21 @@
 # CHANGE.md
 
-## 0.0.4 - Modular Dev Structure
+## 0.0.5 - Tailwind + File Manager Setup
 
 ### Added
 
-- `src/features/auth/` for login/auth/dev-token logic.
-- `src/features/layout/` for sidebar/topbar shell.
-- Separate page modules for Dashboard, Servers, Installer, Console, and placeholders.
-- `src/services/` for API/mock/storage.
-- `src/ui/` for reusable UI pieces.
-- `src/app/` for app boot, state, router.
-- Split CSS files.
+- Tailwind Play CDN in `index.html`
+- Modular feature folders retained
+- File Manager page shell
+- File list, breadcrumbs, editor panel, delete/download actions
+- File manager mock API for local dev
+- Expected file API contract documented
 
 ### Changed
 
-- `index.html` is now only a minimal boot file.
-- Auth login is no longer mixed with page logic.
-- Demo/mock mode is controlled by `devAuth.js` and `mockApi.js`.
+- UI classes migrated to Tailwind utilities
+- `index.html` remains a boot file only
+
+### Local dev
+
+Use token `dev` on localhost.

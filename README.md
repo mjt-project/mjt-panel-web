@@ -1,11 +1,8 @@
-# MJT Panel Web
+# MJT Panel Web 0.0.5
 
-**Version:** `0.0.4`  
-**Focus:** Modular frontend structure for easier development.
+Tailwind CDN + modular frontend for Mini Java Terminal.
 
-This release restructures the panel web into folders by function. `index.html` is now only a small boot file. Login/auth logic lives in its own folder.
-
-## Run locally
+## Local dev
 
 ```bash
 python3 -m http.server 5173
@@ -17,50 +14,46 @@ Open:
 http://127.0.0.1:5173
 ```
 
-For local dev login:
+Use token:
 
 ```text
-Token: dev
+dev
 ```
 
-The token `dev` enables mock API mode automatically on localhost / 127.0.0.1.
+The token `dev` enables mock API mode on localhost.
 
 ## Folder layout
 
 ```text
-mjt-panel-web/
-├── index.html
-├── panel.json
-├── styles/
-│   ├── base.css
-│   ├── layout.css
-│   ├── components.css
-│   └── pages.css
-└── src/
-    ├── main.js
-    ├── app/
-    ├── services/
-    ├── features/
-    │   ├── auth/
-    │   ├── layout/
-    │   ├── dashboard/
-    │   ├── servers/
-    │   ├── installer/
-    │   ├── console/
-    │   └── placeholder/
-    ├── ui/
-    └── utils/
+src/
+  app/                 App state and router
+  services/            API client, mock API, storage
+  features/auth/       Login and local dev auth
+  features/layout/     Shell layout
+  features/dashboard/  Dashboard view
+  features/servers/    Servers view
+  features/installer/  Installer view
+  features/console/    Console view
+  features/files/      File manager view/controller
+  ui/                  Shared UI components
+  utils/               Helpers
 ```
 
-## Design rule
+## File manager expected APIs
 
-- Auth-related logic goes into `src/features/auth/`.
-- API calls go into `src/services/`.
-- Page rendering goes into `src/features/<page>/`.
-- Shared UI components go into `src/ui/`.
-- Shared app state goes into `src/app/state.js`.
-- `index.html` should not contain page markup.
+```text
+GET  /api/files/list?profile=<profile>&path=<path>
+GET  /api/files/read?profile=<profile>&path=<path>
+POST /api/files/write
+POST /api/files/mkdir
+POST /api/files/create
+POST /api/files/delete
+POST /api/files/rename
+GET  /api/files/download?profile=<profile>&path=<path>
+```
 
-## License
+All file APIs should be jailed by the MJT Java core to the selected Minecraft profile workdir.
 
-MIT
+## Notes
+
+This version uses Tailwind Play CDN for zero-build frontend development.

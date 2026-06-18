@@ -1,3 +1,3 @@
-import { createApp } from "./app/App.js";
+import { createApp } from './app/App.js';
 
-createApp(document.getElementById("app")).boot();
+createApp(document.getElementById('app')).boot();

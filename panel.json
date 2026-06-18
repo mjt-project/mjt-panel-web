@@ -1,12 +1,13 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "static-frontend",
   "entry": "index.html",
+  "cssFramework": "Tailwind Play CDN",
   "module": true,
   "minimumCore": "3.0.0-SNAPSHOT+6",
-  "recommendedCore": "3.0.0-SNAPSHOT+8",
+  "recommendedCore": "3.0.0-SNAPSHOT+9",
   "apiBase": "/api",
   "license": "MIT",
-  "structure": "modular-feature-folders"
+  "features": ["auth", "dashboard", "servers", "installer", "console", "file-manager"]
 }

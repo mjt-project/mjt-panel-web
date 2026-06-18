@@ -1,7 +1,7 @@
 {
   "name": "mjt-panel-web",
-  "version": "0.0.4",
-  "description": "Modular static frontend panel for Mini Java Terminal",
+  "version": "0.0.5",
+  "description": "Tailwind CDN static frontend panel for Mini Java Terminal",
   "license": "MIT",
   "type": "module",
   "scripts": {
