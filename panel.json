@@ -1,21 +1,10 @@
 {
   "name": "MJT Panel Web",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "type": "static-frontend",
   "entry": "index.html",
-  "module": true,
   "minimumCore": "3.0.0-SNAPSHOT+6",
   "recommendedCore": "3.0.0-SNAPSHOT+8",
-  "apiBase": "/api",
   "license": "MIT",
-  "theme": "light-first",
-  "features": [
-    "auth",
-    "dashboard",
-    "servers",
-    "installer",
-    "console",
-    "files",
-    "placeholders"
-  ]
+  "ui": "light-polished"
 }

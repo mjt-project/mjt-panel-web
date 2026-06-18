@@ -1,4 +1,4 @@
-import { loadApiBase, loadToken } from '../services/storage.js';
+import { loadApiBase, loadToken } from "../services/storage.js";
 
 export const state = {
   apiBase: loadApiBase(),
@@ -6,14 +6,12 @@ export const state = {
   demo: false,
   status: null,
   profiles: [],
-  selectedProfile: '',
-  currentPage: 'dashboard',
+  selectedProfile: "",
+  currentPage: "dashboard",
   logsPaused: false,
   logsTimer: null,
   commandHistory: [],
-  filePath: '/',
-  selectedFile: null,
-  fileContent: ''
+  files: { path: "/", items: [], selectedFile: null, selectedContent: "" }
 };
 
 export function selectedProfile() {
