@@ -1,0 +1,13 @@
+CHANGE-PHASE-6.md
+PATCH-APPLY.txt
+README.md
+docs/PHASE-6-UI-UX.md
+package.json
+src/api/control-v1.ts
+src/app/App.tsx
+src/features/home/HomePage.tsx
+src/features/network/NetworkPage.tsx
+src/features/services/ServiceManagerPage.tsx
+src/theme/phase6.css
+src/theme/theme.ts
+src/ui/ControlFrame.tsx

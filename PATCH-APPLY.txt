@@ -1,0 +1,19 @@
+MJT Panel Web Phase 6 — Cumulative Panel Overlay
+
+Base:
+  https://github.com/mjt-project/mjt-panel-web (main)
+
+This overlay includes the panel-side Phase 5 Control API integration and the
+Phase 6 UI/UX refresh. Extract it over the panel repository root:
+
+  unzip -o mjt-panel-phase6-operator-ui-overlay.zip
+  npm install
+  npm run check
+  npm run build
+
+Core requirement:
+  Apply the MJT Core Phase 5 Control API overlay first. Phase 6 has no new
+  Core endpoint. The panel calls `/api/v1/services` and `/api/v1/network`.
+
+Do not put the Core API token in a URL. The frontend sends it only in the
+X-MJT-Token request header.

@@ -1,6 +1,9 @@
-import { useMemo, useState } from 'react';
-import { ActionIcon, Badge, Box, Button, Card, Center, Group, Paper, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title, Tooltip } from '@mantine/core';
-import { IconCubePlus, IconRefresh, IconSearch, IconServer, IconSparkles } from '@tabler/icons-react';
+import type { ReactNode } from 'react';
+import { Badge, Button, Card, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+  IconActivity, IconArrowUpRight, IconCloud, IconNetwork, IconPlus,
+  IconServer, IconSparkles, IconTerminal2,
+} from '@tabler/icons-react';
 import type { ServerProfile } from '../../api/types';
 
 interface Props {
@@ -9,78 +12,112 @@ interface Props {
   onCreate: () => void;
   onManage: (server: ServerProfile) => void;
   onRefresh: () => void;
+  onServices: () => void;
+  onNetwork: () => void;
 }
 
-function softwareColor(type: string) {
-  if (type.includes('velocity')) return 'violet';
-  if (type.includes('paper')) return 'blue';
-  if (type.includes('purpur')) return 'grape';
-  return 'gray';
-}
-
-export function HomePage({ servers, loading, onCreate, onManage, onRefresh }: Props) {
-  const [search, setSearch] = useState('');
-  const filtered = useMemo(() => servers.filter((server) => server.name.toLowerCase().includes(search.toLowerCase())), [servers, search]);
+export function HomePage({ servers, loading, onCreate, onManage, onRefresh, onServices, onNetwork }: Props) {
   const running = servers.filter((server) => server.running).length;
+  const stopped = Math.max(0, servers.length - running);
 
   return (
-    <Box className="mjt-page-shell">
-      <Box maw={1180} mx="auto" px="md" py={28}>
-        <Group justify="space-between" align="center" mb={42}>
-          <Group gap="sm">
-            <div className="mjt-logo">M</div>
-            <div>
-              <Text fw={700}>MJT Panel</Text>
-              <Text c="dimmed" size="xs">Server workspace control</Text>
-            </div>
-          </Group>
-          <Group>
-            <Tooltip label="Refresh servers">
-              <ActionIcon variant="subtle" size="lg" onClick={onRefresh} loading={loading}><IconRefresh size={18} /></ActionIcon>
-            </Tooltip>
-            <Badge variant="light" color="teal" radius="sm">{running} running</Badge>
+    <Stack gap="xl" pb={36}>
+      <section className="mjt-hero">
+        <Group justify="space-between" align="flex-start" gap="xl" wrap="wrap">
+          <div>
+            <Badge variant="light" color="indigo" leftSection={<IconSparkles size={13} />}>MJT workspace</Badge>
+            <h1 className="mjt-hero-title">Operate everything without living in the terminal.</h1>
+            <p className="mjt-hero-copy">
+              Minecraft servers, PRoot applications and public routes are grouped into one workspace.
+              Start with what needs attention, then drill into the exact service.
+            </p>
+          </div>
+          <Group align="center">
+            <Button variant="default" loading={loading} onClick={onRefresh}>Refresh data</Button>
+            <Button leftSection={<IconPlus size={17} />} onClick={onCreate}>Create Minecraft server</Button>
           </Group>
         </Group>
+      </section>
 
-        <Group justify="space-between" align="flex-end" gap="lg" mb={28}>
-          <Stack gap={6}>
-            <Group gap={8}><ThemeIcon variant="light" color="indigo"><IconSparkles size={16} /></ThemeIcon><Text c="indigo.7" fw={600} size="sm">Good to see you</Text></Group>
-            <Title order={1} fz={{ base: 30, sm: 38 }} fw={650}>Your servers</Title>
-            <Text c="dimmed" maw={580}>Create a server or choose one below to open its management workspace.</Text>
-          </Stack>
-          <Button size="md" leftSection={<IconCubePlus size={18} />} onClick={onCreate}>Create server</Button>
+      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+        <Metric icon={<IconServer size={19} />} label="Minecraft profiles" value={servers.length} detail="Registered workspaces" tone="indigo" />
+        <Metric icon={<IconActivity size={19} />} label="Running now" value={running} detail={running ? 'Processes responding' : 'No server process is running'} tone="teal" />
+        <Metric icon={<IconTerminal2 size={19} />} label="Needs attention" value={stopped} detail={stopped ? 'Stopped profiles are ready to start' : 'All profiles are online'} tone="orange" />
+      </SimpleGrid>
+
+      <section>
+        <Group justify="space-between" mb="md" align="end">
+          <div>
+            <Text className="mjt-section-title">Minecraft workspaces</Text>
+            <Text size="sm" className="mjt-subtle" mt={4}>Choose a server to open console, files and runtime controls.</Text>
+          </div>
+          <Button variant="subtle" rightSection={<IconArrowUpRight size={15} />} onClick={onCreate}>New profile</Button>
         </Group>
-
-        <Paper p="sm" mb="lg" shadow="xs">
-          <TextInput value={search} onChange={(event) => setSearch(event.currentTarget.value)} leftSection={<IconSearch size={16} />} placeholder="Search servers" variant="unstyled" px="sm" />
-        </Paper>
-
-        {filtered.length === 0 ? (
-          <Center py={72}>
-            <Stack align="center" gap="sm">
-              <ThemeIcon size={54} radius="xl" variant="light" color="indigo"><IconServer size={28} /></ThemeIcon>
-              <Title order={3}>No servers yet</Title>
-              <Text c="dimmed" ta="center">Start by creating a Velocity proxy, Paper server or Purpur server.</Text>
-              <Button mt="sm" leftSection={<IconCubePlus size={16} />} onClick={onCreate}>Create your first server</Button>
-            </Stack>
-          </Center>
-        ) : (
+        {servers.length ? (
           <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-            {filtered.map((server) => (
-              <Card key={server.name} className="mjt-server-card" padding="lg" shadow="xs">
-                <Group justify="space-between" align="flex-start" mb="xl">
-                  <ThemeIcon size={42} radius="md" variant="light" color={softwareColor(server.type)}><IconServer size={21} /></ThemeIcon>
-                  <Badge variant="light" color={server.running ? 'teal' : 'gray'}>{server.running ? 'Running' : 'Stopped'}</Badge>
-                </Group>
-                <Text fw={650} size="lg">{server.name}</Text>
-                <Text c="dimmed" size="sm" mt={4}>{server.type} · port {server.port ?? '—'}</Text>
-                <Text c="dimmed" size="xs" lineClamp={1} mt={4}>{server.workdir || 'Workspace path not reported'}</Text>
-                <Button mt="xl" fullWidth variant={server.running ? 'light' : 'filled'} onClick={() => onManage(server)}>Manage server</Button>
-              </Card>
-            ))}
+            {servers.map((server) => <WorkspaceCard key={server.name} server={server} onManage={onManage} />)}
           </SimpleGrid>
+        ) : (
+          <div className="mjt-empty-state">
+            <Stack align="center" gap="sm">
+              <ThemeIcon size={48} radius="xl" variant="light" color="indigo"><IconServer size={23} /></ThemeIcon>
+              <Text fw={700}>No Minecraft workspaces yet</Text>
+              <Text size="sm" className="mjt-subtle" maw={420}>Create the first profile and MJT will prepare the server folder, jar and start script.</Text>
+              <Button mt="xs" leftSection={<IconPlus size={16} />} onClick={onCreate}>Create a server</Button>
+            </Stack>
+          </div>
         )}
-      </Box>
-    </Box>
+      </section>
+
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+        <Card className="mjt-network-card" padding="lg">
+          <Group justify="space-between" align="flex-start">
+            <ThemeIcon size={42} radius="xl" variant="light" color="violet"><IconCloud size={21} /></ThemeIcon>
+            <Button variant="subtle" size="compact-sm" rightSection={<IconArrowUpRight size={14} />} onClick={onServices}>Open services</Button>
+          </Group>
+          <Text fw={720} mt="lg">Run applications in PRoot</Text>
+          <Text size="sm" className="mjt-subtle" mt={5}>Manage Node, Java, Python and OpenVSCode workloads as named services with restart and health policies.</Text>
+        </Card>
+        <Card className="mjt-network-card" padding="lg">
+          <Group justify="space-between" align="flex-start">
+            <ThemeIcon size={42} radius="xl" variant="light" color="cyan"><IconNetwork size={21} /></ThemeIcon>
+            <Button variant="subtle" size="compact-sm" rightSection={<IconArrowUpRight size={14} />} onClick={onNetwork}>View network</Button>
+          </Group>
+          <Text fw={720} mt="lg">Publish only what you choose</Text>
+          <Text size="sm" className="mjt-subtle" mt={5}>Services stay on loopback. Cloudflare routes are shown separately, so exposure is always visible before you share a link.</Text>
+        </Card>
+      </SimpleGrid>
+    </Stack>
+  );
+}
+
+function Metric({ icon, label, value, detail, tone }: { icon: ReactNode; label: string; value: number; detail: string; tone: string }) {
+  return (
+    <Card className="mjt-metric-card" padding="lg">
+      <Group justify="space-between" align="flex-start">
+        <ThemeIcon variant="light" color={tone} radius="xl" size={40}>{icon}</ThemeIcon>
+        <Text size="xs" className="mjt-subtle" tt="uppercase" fw={700}>{label}</Text>
+      </Group>
+      <div className="mjt-metric-value">{value}</div>
+      <Text size="sm" className="mjt-subtle">{detail}</Text>
+    </Card>
+  );
+}
+
+function WorkspaceCard({ server, onManage }: { server: ServerProfile; onManage: (server: ServerProfile) => void }) {
+  const running = Boolean(server.running);
+  return (
+    <Card className="mjt-workspace-card" padding="lg">
+      <Group justify="space-between" align="flex-start">
+        <ThemeIcon size={42} radius="xl" variant="light" color={running ? 'teal' : 'gray'}><IconServer size={20} /></ThemeIcon>
+        <Badge color={running ? 'teal' : 'gray'} variant="light">{running ? 'Running' : 'Stopped'}</Badge>
+      </Group>
+      <Text fw={760} fz="lg" mt="xl">{server.name}</Text>
+      <Text size="sm" className="mjt-subtle" mt={4}>{server.type || 'Minecraft'} · local port {server.port ?? '—'}</Text>
+      <Text size="xs" className="mjt-subtle" mt={14} lineClamp={1}>{server.workdir || 'Workspace path unavailable'}</Text>
+      <Button fullWidth mt="lg" variant={running ? 'light' : 'default'} onClick={() => onManage(server)}>
+        Manage workspace
+      </Button>
+    </Card>
   );
 }
