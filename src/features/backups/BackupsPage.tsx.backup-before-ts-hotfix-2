@@ -34,7 +34,7 @@ export function BackupsPage({ api, profile }: Props) {
 
   useEffect(() => { load(); }, [profile]);
 
-  const totalSize = useMemo(() => backups.reduce((total, item) => { const rawSize = item.size; const size = typeof rawSize === 'number' ? rawSize : Number.parseFloat(rawSize ?? '0'); return total + (Number.isFinite(size) ? size : 0); }, 0), [backups]);
+  const totalSize = useMemo(() => backups.reduce((total, item) => total + parseFloat(item.size) || total, 0), [backups]);
 
   const create = async () => {
     try {

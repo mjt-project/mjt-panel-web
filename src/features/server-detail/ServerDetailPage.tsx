@@ -11,7 +11,15 @@ function relativeParent(path: string) {
   const values = path.split('/').filter(Boolean); values.pop(); return values.join('/');
 }
 
-function prettySize(size?: number) { if (size == null) return '—'; if (size < 1024) return `${size} B`; if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`; return `${(size / 1024 / 1024).toFixed(1)} MB`; }
+function prettySize(size?: number | string) {
+  const bytes = typeof size === 'string' ? Number.parseFloat(size) : size;
+
+  if (bytes == null || !Number.isFinite(bytes)) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 
 export function ServerDetailPage({ server, api, capabilities, onBack, onChanged }: Props) {
   const [busy, setBusy] = useState(false);

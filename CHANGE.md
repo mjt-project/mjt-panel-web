@@ -1,33 +1,27 @@
-# CHANGE.md
+# MJT Panel Web — Operator UI/UX
 
-## 0.0.15 - Server-first UX rebuild
+## Scope
 
-### Changed
+Phase 6 changes the panel from a collection of admin screens into a focused
+operator workspace. It builds on the Phase 5 Control API v1 integration.
 
-- Removed the crowded always-visible left sidebar.
-- Rebuilt the first screen after login around only three actions:
-  - welcome
-  - create server
-  - select an existing server
-- Clicking a server now opens a dedicated management workspace.
+## What changed
 
-### Added
+- New dark control-surface theme with stronger visual hierarchy and responsive
+  top navigation. No large persistent sidebar is added.
+- Home is now a control center: workload counts, profile cards, and direct
+  paths to application services and network exposure.
+- Guest Services moves from a dense table to status-first service cards.
+- Service detail is available in a drawer with local origin, restart policy,
+  public hostname and latest output.
+- Network is reframed around the safe routing model: private loopback service
+  -> health check -> explicit Cloudflare publication.
+- `package.json` is bumped to `0.0.16`. No extra frontend dependency is added.
 
-- Dedicated server detail layout with tabs:
-  - Overview
-  - Console
-  - Files
-  - Backups
-  - Settings
-- Professional create-server modal for Velocity, Paper and Purpur.
-- Clear danger handling: Kill is hidden inside a menu and requires confirmation.
-- Capability-aware Files tab, which does not call missing APIs.
-- Error boundary so a runtime exception does not become a blank page.
-- Local mock/demo mode with `dev` token.
+## Compatibility
 
-### UX decisions
+The overlay contains the Phase 5 Control API frontend client and pages as well
+as Phase 6 UI updates. It expects MJT Core to expose the Phase 5
+`/api/v1` endpoint for Services and Network.
 
-- Start is the primary action only when the server is stopped.
-- Stop is a quiet secondary action when the server is running.
-- Restart and Kill are grouped in a More menu.
-- Unfinished backend features do not show 404 errors to the user.
+The existing Minecraft API remains unchanged.
