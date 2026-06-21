@@ -1,13 +1,22 @@
 /**
- * Typed client for MJT Core's loopback-only /api/v1 control API.
+ * Typed client for MJT Core's /api/v1 control API.
  *
- * It deliberately uses a request header for authentication. Tokens are never
- * appended to a URL, therefore they do not leak through browser history,
- * referrers or proxy logs.
+ * Authentication is sent only through X-MJT-Token, never as a query parameter.
  */
 export interface ControlApiErrorShape {
   ok: false;
   error: { code: string; message: string };
+}
+
+export class ControlApiRequestError extends Error {
+  public constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+  ) {
+    super(message);
+    this.name = 'ControlApiRequestError';
+  }
 }
 
 export interface ServiceLifecycle {
@@ -78,6 +87,9 @@ export interface CoreStatus {
   serverTime: string;
   activeProfile: string;
   guestServices: number;
+  activeEnvironment?: string;
+  hostArchitecture?: string;
+  distroEngineReady?: boolean;
 }
 
 export interface NetworkSnapshot {
@@ -90,6 +102,91 @@ export interface NetworkSnapshot {
 export interface ServiceEvent {
   event: 'log' | 'status' | 'unknown';
   data: unknown;
+}
+
+/** Native-only environments exposed by Core Phase 8. */
+export interface DistroCatalogEntry {
+  id: 'debian-12' | 'ubuntu-24.04' | 'alpine-3.21' | string;
+  label: string;
+  image: string;
+  architecture: string;
+  packageManager: 'apt' | 'apk' | string;
+}
+
+export interface DistroCatalogSnapshot {
+  ok: true;
+  hostArchitecture: string;
+  displayArchitecture: string;
+  supported: boolean;
+  environments: DistroCatalogEntry[];
+}
+
+export interface DistroEngineInfo {
+  enabled: boolean;
+  linuxHost: boolean;
+  hostArchitecture: string;
+  displayArchitecture: string;
+  architectureSupported: boolean;
+  python: string;
+  pythonReady: boolean;
+  proot: string;
+  prootReady: boolean;
+  path: string;
+  ready: boolean;
+  version: string;
+  activeEnvironment: string;
+  runtimeDirectory: string;
+  cacheDirectory: string;
+}
+
+export interface DistroEngineSnapshot {
+  ok: true;
+  engine: DistroEngineInfo;
+}
+
+export interface DistroEnvironment {
+  name: string;
+  source: string;
+  rootfs: string;
+  architecture: string;
+  active: boolean;
+  ready: boolean;
+}
+
+export interface DistroListSnapshot {
+  ok: true;
+  activeEnvironment: string;
+  environments: DistroEnvironment[];
+}
+
+export interface DistroJob {
+  id: string;
+  type: string;
+  target: string;
+  state: 'queued' | 'running' | 'succeeded' | 'failed' | string;
+  message: string;
+  createdAt: string;
+  startedAt: string;
+  finishedAt: string;
+  logs: string[];
+}
+
+export interface DistroJobSnapshot {
+  ok: true;
+  job: DistroJob;
+}
+
+export interface AcceptedDistroJob {
+  ok: true;
+  accepted: true;
+  jobId: string;
+}
+
+export interface InstallDistroInput {
+  catalogId: string;
+  /** Empty lets Core use the safe catalog default. */
+  name?: string;
+  activate?: boolean;
 }
 
 export class PanelControlApi {
@@ -142,10 +239,50 @@ export class PanelControlApi {
     return this.request('/network');
   }
 
+  /** Environment / PRoot-Distro API (MJT Core Phase 8). */
+  public distroCatalog(): Promise<DistroCatalogSnapshot> {
+    return this.request('/distros/catalog');
+  }
+
+  public distroEngine(): Promise<DistroEngineSnapshot> {
+    return this.request('/distros/engine');
+  }
+
+  public listDistros(): Promise<DistroListSnapshot> {
+    return this.request('/distros');
+  }
+
+  public installDistroEngine(): Promise<AcceptedDistroJob> {
+    return this.request('/distros/engine/install', { method: 'POST', body: '{}' });
+  }
+
+  public updateDistroEngine(version?: string): Promise<AcceptedDistroJob> {
+    return this.request('/distros/engine/update', { method: 'POST', body: JSON.stringify({ version: version ?? '' }) });
+  }
+
+  public installDistro(input: InstallDistroInput): Promise<AcceptedDistroJob> {
+    return this.request('/distros/install', { method: 'POST', body: JSON.stringify(input) });
+  }
+
+  public getDistro(name: string): Promise<DistroEnvironment> {
+    return this.request(`/distros/${encodeURIComponent(name)}`);
+  }
+
+  public activateDistro(name: string): Promise<AcceptedDistroJob> {
+    return this.request(`/distros/${encodeURIComponent(name)}/activate`, { method: 'POST', body: '{}' });
+  }
+
+  public removeDistro(name: string): Promise<AcceptedDistroJob> {
+    return this.request(`/distros/${encodeURIComponent(name)}/remove`, { method: 'POST', body: '{}' });
+  }
+
+  public distroJob(jobId: string): Promise<DistroJobSnapshot> {
+    return this.request(`/distros/jobs/${encodeURIComponent(jobId)}`);
+  }
+
   /**
    * Stream SSE through fetch rather than EventSource because EventSource cannot
-   * send the X-MJT-Token header. Returns when the caller aborts or server ends
-   * its bounded stream.
+   * send the X-MJT-Token header. Returns when the caller aborts or server ends.
    */
   public async streamServiceEvents(
     id: string,
@@ -209,14 +346,16 @@ export class PanelControlApi {
     return (await response.json()) as T;
   }
 
-  private async toError(response: Response): Promise<Error> {
+  private async toError(response: Response): Promise<ControlApiRequestError> {
     let data: unknown;
-    try { data = await response.json(); } catch { return new Error(`HTTP ${response.status}`); }
+    try { data = await response.json(); } catch {
+      return new ControlApiRequestError(`HTTP ${response.status}`, response.status);
+    }
     if (typeof data === 'object' && data !== null && 'error' in data) {
       const error = (data as ControlApiErrorShape).error;
-      if (error?.message) return new Error(error.message);
+      if (error?.message) return new ControlApiRequestError(error.message, response.status, error.code);
     }
-    return new Error(`HTTP ${response.status}`);
+    return new ControlApiRequestError(`HTTP ${response.status}`, response.status);
   }
 }
 
@@ -247,7 +386,6 @@ export function inferControlApiBase(legacyOrApiBase: string, browserOrigin?: str
   const origin = browserOrigin ?? (typeof window === 'undefined' ? 'http://127.0.0.1:9090' : window.location.origin);
   const directAbsoluteUrl = /^https?:\/\//i.test(input);
   const url = new URL(input || origin, origin);
-  // Relative `/api` in Vite development points to the frontend port, not Core.
   if (!directAbsoluteUrl || !url.port || url.port === '9090') url.port = '9091';
   url.pathname = '/api/v1';
   url.search = '';
